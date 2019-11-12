@@ -1,0 +1,5 @@
+etc/bash_completion.d/vyatta-cfg etc/bash_completion.d
+etc/default/vyatta-cfg
+opt/vyatta/bin/configure
+opt/vyatta/bin/list-configuration-files
+opt/vyatta/share/vyatta-cfg/functions

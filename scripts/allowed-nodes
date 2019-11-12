@@ -1,0 +1,7 @@
+#! /bin/bash
+
+# Nodes come in single quotes and this ensures they are removed. Doing
+# this using an array is recommended in vyatta-cfg:src/cli_shell_api.cpp
+declare -a array
+eval "array=($(cli-shell-api listActiveNodes $*))"
+echo -n ${array[@]}

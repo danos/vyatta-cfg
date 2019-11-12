@@ -1,0 +1,14 @@
+PROJECT_NAME           = "Vyatta Configuration System"
+PROJECT_NUMBER         = "Version 0.104"
+INPUT                  = src/client/ src/configd/rpc_types.h
+FILE_PATTERNS	       = *.h *.hpp
+OPTIMIZE_OUTPUT_FOR_C  = YES
+TAB_SIZE               = 4
+EXTRACT_ALL            = YES
+BUILTIN_STL_SUPPORT    = YES
+WARNINGS               = YES
+GENERATE_LATEX         = NO
+GENERATE_MAN           = YES
+GENERATE_HTML          = YES
+SORT_MEMBER_DOCS       = NO
+REPEAT_BRIEF           = YES

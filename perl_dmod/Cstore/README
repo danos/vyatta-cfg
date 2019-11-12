@@ -1,0 +1,24 @@
+Cstore version 0.01
+==========================
+
+This module provides Perl bindings to the Vyatta Cstore library.
+
+
+INSTALLATION
+
+This module is installed as part of the vyatta-cfg package.
+
+
+DEPENDENCIES
+
+This module requires the Vyatta Cstore library.
+
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2010 Vyatta, Inc.
+
+Copyright (c) 2014 by Brocade Communications Systems, Inc.
+All rights reserved.
+
+

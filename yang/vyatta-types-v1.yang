@@ -1,0 +1,287 @@
+module vyatta-types-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-types:1";
+	prefix vyatta-types-v1;
+
+	import ietf-inet-types {
+		prefix inet;
+	}
+	import ietf-yang-types {
+		prefix ietf;
+	}
+	import configd-v1 {
+		prefix configd;
+	}
+
+	organization "AT&T Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+				 Dallas, TX 75202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018-2019 AT&T Intellectual Property
+		 All rights reserved.
+
+		 Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
+		 All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or without
+		 modification, are permitted provided that the following conditions
+		 are met:
+
+		 1. Redistributions of source code must retain the above copyright
+		    notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+		    copyright notice, this list of conditions and the following
+		    disclaimer in the documentation and/or other materials provided
+		    with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+		    contributors may be used to endorse or promote products derived
+		    from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 This module implements vyatta-types-v1.";
+
+	revision 2018-07-18 {
+		description "Added vlan type";
+	}
+
+	revision 2016-11-16 {
+		description "Added time-interval-seconds type.";
+	}
+
+	revision 2015-08-05 {
+		description "Initial revision of version 1.";
+	}
+
+	typedef ipv4-address {
+		type inet:ipv4-address {
+			configd:pattern-help "<x.x.x.x>";
+			configd:help "IPv4 Address";
+			configd:normalize "normalize ipv4";
+		}
+	}
+	typedef neg-ipv4-address {
+		type string {
+			pattern '!(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+				+  '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])';
+			configd:pattern-help "!<x.x.x.x>";
+			configd:help "Except IPv4 Address";
+			configd:normalize "normalize neg-ipv4";
+		}
+	}
+	typedef ipv6-address {
+		type inet:ipv6-address {
+			configd:pattern-help "<h:h:h:h:h:h:h:h>";
+			configd:help "IPv6 Address";
+			configd:normalize "normalize ipv6";
+		}
+
+	}
+	typedef neg-ipv6-address {
+		type string {
+			pattern '!((:|[0-9a-fA-F]{0,4}):)([0-9a-fA-F]{0,4}:){0,5}'
+				+ '((([0-9a-fA-F]{0,4}:)?(:|[0-9a-fA-F]{0,4}))|'
+				+ '(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}'
+				+ '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])))';
+			pattern '!(([^:]+:){6}(([^:]+:[^:]+)|(.*\..*)))|'
+				+ '((([^:]+:)*[^:]+)?::(([^:]+:)*[^:]+)?)';
+			configd:pattern-help "!<h:h:h:h:h:h:h:h>";
+			configd:help "Except IPv6 Address";
+			configd:normalize "normalize neg-ipv6";
+		}
+	}
+	typedef ip-address {
+		type union {
+			type ipv4-address;
+			type ipv6-address;
+			configd:normalize "normalize ip";
+		}
+	}
+	typedef ipv4-prefix {
+		type string {
+			pattern '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+				+  '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+				+ '/(([0-9])|([1-2][0-9])|(3[0-2]))';
+			configd:pattern-help "<x.x.x.x/x>";
+			configd:help "IPv4 Prefix";
+			configd:normalize "normalize ipv4";
+		}
+	}
+	typedef neg-ipv4-prefix {
+		type string {
+			pattern '!(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+				+  '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+				+ '/(([0-9])|([1-2][0-9])|(3[0-2]))';
+			configd:pattern-help "!<x.x.x.x/x>";
+			configd:help "Except IPv4 Prefix";
+			configd:normalize "normalize neg-ipv4-prefix";
+		}
+	}
+	typedef ipv6-prefix {
+		type string {
+			pattern '((:|[0-9a-fA-F]{0,4}):)([0-9a-fA-F]{0,4}:){0,5}'
+				+ '((([0-9a-fA-F]{0,4}:)?(:|[0-9a-fA-F]{0,4}))|'
+				+ '(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}'
+				+ '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])))'
+				+ '(/(([0-9])|([0-9]{2})|(1[0-1][0-9])|(12[0-8])))';
+			pattern '(([^:]+:){6}(([^:]+:[^:]+)|(.*\..*)))|'
+				+ '((([^:]+:)*[^:]+)?::(([^:]+:)*[^:]+)?)'
+				+ '(/.+)';
+			configd:pattern-help "<h:h:h:h:h:h:h:h/x>";
+			configd:help "IPv6 Prefix";
+			configd:normalize "normalize ipv6";
+		}
+	}
+	typedef neg-ipv6-prefix {
+		type string {
+			pattern '!((:|[0-9a-fA-F]{0,4}):)([0-9a-fA-F]{0,4}:){0,5}'
+				+ '((([0-9a-fA-F]{0,4}:)?(:|[0-9a-fA-F]{0,4}))|'
+				+ '(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}'
+				+ '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])))'
+				+ '(/(([0-9])|([0-9]{2})|(1[0-1][0-9])|(12[0-8])))';
+			pattern '!(([^:]+:){6}(([^:]+:[^:]+)|(.*\..*)))|'
+				+ '((([^:]+:)*[^:]+)?::(([^:]+:)*[^:]+)?)'
+				+ '(/.+)';
+			configd:pattern-help "!<h:h:h:h:h:h:h:h/x>";
+			configd:help "Except IPv6 Prefix";
+			configd:normalize "normalize neg-ipv6-prefix";
+		}
+	}
+	typedef ip-prefix {
+		type union {
+			type ipv4-prefix;
+			type ipv6-prefix;
+			configd:normalize "normalize ip";
+		}
+	}
+	typedef hostname-port {
+		type string {
+			pattern '([A-Za-z0-9][-A-Za-z0-9_]{0,62})'
+                              + '(\.[A-Za-z0-9][-A-Za-z0-9_]{0,62})*'
+                              + '(:[1-9][0-9]{0,4})?';
+                        pattern '([-A-Za-z0-9._]{1,255})'
+                              + '(:[0-9]{0,5})?';
+			configd:pattern-help "<hostname[:port]>";
+			configd:help "Remote host name and optional port";
+		}
+	}
+	typedef domain-name {
+		type string {
+			length "1..253";
+			pattern '([a-zA-Z0-9](([a-zA-Z0-9\-]){0,61})'
+			    + '?[a-zA-Z0-9])(\.[a-zA-z0-9](([a-zA-Z0-9\-])'
+			    + '{0,61})?[a-zA-Z0-9])*';
+			configd:pattern-help "<domainname>";
+		}
+	}
+	typedef host {
+		type union {
+			type ip-address;
+			type domain-name;
+		}
+	}
+	typedef ipv4-addr-port {
+	  type string {
+	    pattern '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+	          + '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+		  + '(:[1-9][0-9]{0,4})?';
+	    configd:pattern-help "<x.x.x.x[:port]>";
+	    configd:help "IPv4 Address and optional port";
+	  }
+	}
+	typedef ipv6-addr-port {
+	  type string {
+	    pattern '\[((:|[0-9a-fA-F]{0,4}):)([0-9a-fA-F]{0,4}:){0,5}'
+		  + '((([0-9a-fA-F]{0,4}:)?(:|[0-9a-fA-F]{0,4}))|'
+		  + '(((25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}'
+		  + '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])))\]'
+		  + '(:[1-9][0-9]{0,4})?';
+	    configd:pattern-help "<[h:h:h:h:h:h:h:h][:port]>";
+	    configd:help "IPv6 Address enclosed in brackets and optional port";
+	  }
+	}
+
+	typedef mac-address {
+		type ietf:mac-address {
+			configd:pattern-help "<h:h:h:h:h:h>";
+			configd:help "MAC Address";
+			configd:normalize "normalize mac";
+		}
+	}
+
+	typedef alpha-numeric {
+		type string {
+			pattern '[0-9A-Za-z][-_0-9A-Za-z]*' {
+				error-message "only alpha-numeric name allowed";
+			}
+			configd:pattern-help "<alpha-numeric>";
+			configd:help "Alpha-numeric, with non-leading - or _";
+		}
+	}
+
+	typedef port {
+		type uint16 {
+			range "1..65535";
+			configd:help "Numbered port";
+		}
+	}
+
+	typedef port-range {
+		type string {
+			pattern '([1-9][0-9]{0,4})-([1-9][0-9]{0,4})';
+			configd:pattern-help "<1..65535>-<1..65535>";
+			configd:syntax 'vyatta-validate-type portrange $VAR(@)';
+			configd:help "Numbered port range (e.g. 1001-1005)";
+		}
+	}
+
+	typedef cpu-range {
+		type string {
+			pattern "[0-9]+(-[0-9]+)?(,[0-9]+(-[0-9]+)?)*";
+			configd:pattern-help "<cpu>[-<cpu>][,<cpu>[-<cpu>]...]";
+			configd:help "Numbered range of cpu's (e.g 0-7)";
+		}
+	}
+
+	typedef interface-ifname {
+		type string {
+			length 1..15;
+			pattern '[A-Za-z][-_.0-9A-Za-z]*' {
+				error-message "Only alpha-numeric name, with non-leading . - or _ allowed";
+			}
+			configd:pattern-help "<alpha-numeric non-leading . - or _>";
+			configd:help "Interface Name";
+		}
+	}
+
+	typedef time-interval-seconds {
+		description "Integer value representing a time interval";
+		type uint32 {
+			configd:help "Time interval in seconds";
+		}
+		units "seconds";
+	}
+
+	typedef vlan {
+		description "VLAN ID";
+		type uint16 {
+			range 1..4094;
+		}
+	}
+}

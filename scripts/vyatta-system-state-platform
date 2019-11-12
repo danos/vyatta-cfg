@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+#
+# Copyright (c) 2016 Brocade Communications Systems, Inc.
+# All rights reserved
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
+use strict;
+use warnings;
+
+use JSON;
+use Config::IniFiles;
+
+my $os_release_file = "/etc/os-release";
+
+my %out;
+
+sub build_output {
+    my ( $version, $name, $release ) = @_;
+    my %output;
+
+    $version =~ s/^"(.*)"/$1/; 
+    $output{"os-version"} = $version; #=~ s/^"(.*)"/$version/; 
+
+    $name =~ s/^"(.*)"/$1/; 
+    $output{"os-name"}    = $name;
+
+    $release =~ s/^"(.*)"/$1/; 
+    $output{"os-release"} = $release;
+
+    return %output;
+}
+
+sub get_version {
+    my $fh;
+
+    open ($fh, '<', $os_release_file) or return build_output('unknown', 'unknown', 'unknown');
+
+    my $ini = Config::IniFiles->new( -file => $fh, -fallback => "os-release" );
+
+    my $version = $ini->val('os-release', 'BUILD_ID', "unknown");
+    $version = $ini->val('os-release', 'VERSION_ID', $version);
+
+    my $name = $ini->val('os-release', 'NAME', 'unknown',);
+    $name = $ini->val('os-release', 'PRETTY_NAME', $name,);
+    
+    my $release = $ini->val('os-release', 'VYATTA_PROJECT_ID', "unknown");
+
+    return build_output( $version, $name, $release );
+}
+
+%out = get_version();
+
+print encode_json( \%out );

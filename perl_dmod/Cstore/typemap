@@ -1,0 +1,79 @@
+# Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+#
+# Copyright (C) 2010 Vyatta, Inc.
+#
+# Copyright (c) 2014 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: LGPL-2.1-only
+
+TYPEMAP
+Cstore *      O_OBJECT
+STRVEC *      T_STRVEC_REF
+CPATH *       T_CPATH_REF
+STRSTRMAP *   T_STRSTRMAP_REF
+
+
+############################################################
+OUTPUT
+O_OBJECT
+  sv_setref_pv($arg, CLASS, (void *) $var);
+
+T_STRVEC_REF
+  AV *results;
+  results = (AV *) sv_2mortal((SV *) newAV());
+  for (unsigned int i = 0; i < ret_strvec.size(); i++) {
+    av_push(results, newSVpv(ret_strvec[i].c_str(), 0));
+  }
+  $arg = newRV((SV *) results);
+
+T_STRSTRMAP_REF
+  HV *href = (HV *) sv_2mortal((SV *) newHV());
+  std::map<std::string, std::string>::iterator it = ret_strstrmap.begin();
+  for (; it != ret_strstrmap.end(); ++it) {
+    const char *key = (*it).first.c_str();
+    const char *val = (*it).second.c_str();
+    hv_store(href, key, strlen(key), newSVpv(val, 0), 0);
+  }
+  $arg = newRV((SV *) href);
+
+
+############################################################
+INPUT
+O_OBJECT
+  if (sv_isobject($arg) && (SvTYPE(SvRV($arg)) == SVt_PVMG)) {
+    $var = ($type) SvIV((SV *) SvRV($arg));
+  } else {
+    warn(\"${Package}::$func_name(): $var is not a blessed SV reference\");
+    XSRETURN_UNDEF;
+  }
+
+T_STRVEC_REF
+  {
+    int i = 0;
+    I32 num = 0;
+    if (!SvROK($arg) || SvTYPE(SvRV($arg)) != SVt_PVAV) {
+      XSRETURN_UNDEF;
+    }
+    num = av_len((AV *) SvRV($arg));
+    /* if input array is empty, vector will be empty as well. */
+    for (i = 0; i <= num; i++) {
+      string str = SvPV_nolen(*av_fetch((AV *) SvRV($arg), i, 0));
+      arg_strvec.push_back(str);
+    }
+  }
+
+T_CPATH_REF
+  {
+    int i = 0;
+    I32 num = 0;
+    if (!SvROK($arg) || SvTYPE(SvRV($arg)) != SVt_PVAV) {
+      XSRETURN_UNDEF;
+    }
+    num = av_len((AV *) SvRV($arg));
+    /* if input array is empty, path will be empty as well. */
+    for (i = 0; i <= num; i++) {
+      arg_cpath.push_back(SvPV_nolen(*av_fetch((AV *) SvRV($arg), i, 0)));
+    }
+  }
+

@@ -1,0 +1,208 @@
+# vyatta bash configuration mode completion
+
+# **** License ****
+# Copyright (c) 2019 AT&T Intellectual Property.
+# All Rights Reserved.
+#
+# Copyright (c) 2014-2017 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: LGPL-2.1-only
+# 
+# Author: Vyatta
+# Description: bash completion for Vyatta configuration commands
+# 
+# **** End License ****
+
+# Turn on history logging
+export HISTCONTROL=ignoreboth
+export HISTFILESIZE=10000
+export HISTSIZE=10000
+export HISTTIMEFORMAT='%FT%T%z ' 
+export PROMPT_COMMAND='history -a'
+
+# remove colon from completion word separators
+export COMP_WORDBREAKS=${COMP_WORDBREAKS/:/}
+
+builtin set histappend=1
+
+# only do this if we are going into configure mode
+if [ "$_OFR_CONFIGURE" != "ok" ]; then
+  return 0
+fi
+
+if [ -r /etc/default/vyatta ]; then
+  source /etc/default/vyatta
+fi
+
+declare -a cfg_functions
+cfg_functions=( /opt/vyatta/share/vyatta-cfg/functions/interpreter/* )
+for file in "${cfg_functions[@]}"; do
+  source $file
+done
+
+#  readline bindings
+case "$-" in
+  *i*)
+    bind 'set show-all-if-ambiguous on'
+    if ! bind -p |grep -q '\\C-x\\C-t'; then
+      bind '"\C-x\C-t": kill-region'
+    fi
+    if ! bind -p |grep -q '\\C-x\\C-o'; then
+      bind '"\C-x\C-o": copy-region-as-kill'
+    fi
+  ;;
+esac
+
+# set up the session environment
+## note: this can not use vyatta_cli_shell_api() above since it "declares"
+##       env vars.
+eval "$(${vyatta_sbindir}/my_cli_shell_api getSessionEnv $$)"
+
+declare is_set=0
+declare last_idx=0
+declare -a comp_words=()
+
+# commands to unalias
+declare -a unalias_cmds=( clear configure date debug edit exit load merge \
+                          no run set show save terminal undebug up top )
+for cmd in "${unalias_cmds[@]}"; do
+  unalias $cmd >& /dev/null
+done
+
+### Top level command completions ###
+# do op mode completion
+vyatta_run_complete ()
+{
+  local restore_shopts=$( shopt -p extglob nullglob | tr \\n \; )
+  
+  local cur
+  _get_comp_words_by_ref cur
+  
+  if [[ $COMP_CWORD -eq 0 ]]; then
+    vyatta_config_complete "$@"
+    eval $restore_shopts
+    return
+  fi
+
+  if [[ "${cur}" =~ "/" ]]; then
+    compopt -o nospace
+    _vyatta_op_bash_slash_complete
+    eval $restore_shopts
+    return 0
+  else
+    shopt -s extglob nullglob
+    # we have to fun around with COMP_WORDS to remove the 'run' prefix
+    COMP_WORDS=( "${COMP_WORDS[@]:1}" )
+    (( COMP_CWORD -= 1 ))
+    _vyatta_op_expand "$@"
+  fi
+  
+  if [ -z "$cur" ] ||
+     [[ "${COMPREPLY[0]}" =~ "$cur" ]]; then
+    for comp ; do
+      if [ -z "$comp" ] ; then
+        if [ ${#COMPREPLY[@]} -eq 0 ] ; then
+          COMPREPLY=( " " "" )
+        elif _vyatta_op_comprely_needs_ambiguity ; then
+          COMPREPLY+=( " " )
+        fi  
+      fi  
+    done
+  fi   
+  
+  eval $restore_shopts
+}
+### End Top level command completions ###
+
+declare vyatta_do_help=false
+
+if ! cli-shell-api setupSession; then
+  echo 'Failed to set up config session'
+  builtin exit 1
+fi
+
+# disallow initial 'Ctrl-D' exit as a warning that it will discard the session
+# 2 consecutive Ctrl-D sequences will exit the shell
+export IGNOREEOF=1
+
+# cleanup on every exit even dead ssh sessions
+trap "{ really_exit; }" EXIT HUP KILL
+
+reset_edit_level
+
+export VYATTA_COMP_LINE_EMPTY=VYATTA_COMP_LINE_EMPTY
+export VYATTA_COMP_LINE=$VYATTA_COMP_LINE_EMPTY
+
+
+# note: now that we're using bash's new "empty completion" (-E), it becomes
+# necessary to capture the "default completion" (-D) as well in order to
+# provide completion "within the first word". (see below for -E and -D
+# assignments.) however, this changes the previous behavior that uses
+# "filename completion" as default completion.
+#
+# since we explicitly specify the completion function for each vyatta command,
+# the "default completion" only applies in two scenarios:
+#   1. "within" the first word, and
+#   2. after any non-vyatta commands that do not have completion functions.
+#
+# therefore, to provide the previous behavior, just detect scenario 2 above
+# and use filename completion.
+vyatta_config_default_complete ()
+{
+  local wc=${#COMP_WORDS[@]}
+  if (( wc < 2 )) ||
+     [[ $COMP_CWORD -eq 0 ]] ||
+     [[ $1 == $2 ]]; then
+    vyatta_config_complete "$@"
+  else
+    # after the first word => cannot be vyatta command so use original default
+    local cur
+    _get_comp_words_by_ref cur
+    _filedir
+  fi
+}
+
+vyatta_config_complete ()
+{
+  local restore_shopts=$( shopt -p extglob nullglob | tr \\n \; )
+  shopt -s extglob nullglob
+
+  if _vyatta_pipe_completion "${COMP_WORDS[@]}"; then
+    if [ "${COMP_WORDS[*]}" == "$_vyatta_op_last_comp" ] ||
+       [ ${#_vyatta_pipe_completions[@]} -eq 0 ]; then
+        _vyatta_do_pipe_help
+        COMPREPLY=( "" " " )
+        _vyatta_op_last_comp=${_vyatta_op_last_comp_init}
+    else
+        COMPREPLY=( "${_vyatta_pipe_completions[@]}" )
+        _vyatta_op_last_comp="${COMP_WORDS[*]}"
+        if [ ${#COMPREPLY[@]} -eq 1 ]; then
+          COMPREPLY=( "${COMPREPLY[0]} " )
+        fi
+    fi
+    eval "$restore_shopts"
+    return
+  fi
+
+  if [[ "$COMP_LINE" == "$VYATTA_COMP_LINE" ]]; then
+    VYATTA_COMP_LINE=$VYATTA_COMP_LINE_EMPTY
+    vyatta_do_help=true
+  else
+    VYATTA_COMP_LINE=$COMP_LINE
+    vyatta_do_help=false
+  fi
+
+  (( $COMP_CWORD > 0 )) && cword=$COMP_CWORD || cword=0
+  eval "$(cfgcli -action complete -dohelp=$vyatta_do_help -prefix "$2" -curword "$3" \
+         -lastcomp "${COMP_WORDS[cword]}" -curidx "$cword" "${COMP_WORDS[@]}")"
+
+  eval $restore_shopts
+}
+
+_vyatta_cfg_init 
+
+# Local Variables:
+# mode: shell-script
+# sh-indentation: 4
+# End:

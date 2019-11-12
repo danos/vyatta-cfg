@@ -1,0 +1,43 @@
+This package has the Vyatta configuration system, including the configuration
+back-end, the base configuration templates, and the config-mode CLI completion
+mechanism.
+
+The following is a write-up of notes from a TOI from James Davidson in June 2017, and attempts to give an overview of the content of this repo:
+
+etc/
+  bash_completion.d/
+    vyatta-cfg - adds top-level command completion to bash
+  default/
+    vyatta-cfg - sets up HISTIGNORE to hide passwords etc
+  logrotate.d/
+    vyatta-config-logs - sets up logrotate settings
+
+functions/
+  interpreter/
+    vyatta-cfg-run - run when you type 'set', calls cfgcli if in vbash
+  script-wrapper - handles top level commands, calling cli-shell-api etc
+
+perl_dmod/
+  Cstore/
+    - This is the perl API documented in the perl API doc.  This is a
+	  perl extension (cstore.xs) and maps to our config API via Perl.
+	  This was previously a Perl wrapper onto C++ Cstore before it was
+	  rewritten in go.
+      Lots of scripts use this so have to maintain it.
+
+scripts/  (Way too many small bits and pieces!_
+  vyatta-load-config.pl
+  vyatta-save-config.pl
+    - used by configd for load / save of config
+  vcli - scripting interface on top of CLI
+
+src/
+  cli-shell-api.cpp - application which takes calls from the various scripts
+    in 'scripts' and maps them onto calls into configd via the client /
+	dispatcher socket interface
+  client/
+    - front end for calls into configd dispatcher via the configd socket,
+	  implements config commands.
+  cliexec/
+    - bits of cstore we need to keep eg varrefs.  Bit like a bash wrapper,
+	  sometimes spawned by configd to perform certain actions.

@@ -1,0 +1,127 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+#
+# Copyright (c) 2016 Brocade Communications Systems, Inc.
+# All rights reserved
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
+use strict;
+use warnings;
+
+use JSON;
+use Switch;
+
+my $proc_meminfo_file = "/proc/meminfo";
+
+my $output_map = {
+    "MemTotal"       => "total-memory",
+    "MemFree"        => "free-memory",
+    "MemAvailable"   => "available-memory",
+    "Buffers"        => "buffers",
+    "Cached"         => "cached",
+    "SwapCached"     => "swap-cached",
+    "Active"         => "active",
+    "Inactive"       => "inactive",
+    "Active(file)"   => "active-file",
+    "Inactive(file)" => "inactive-file",
+    "Inactive(file)" => "inactive-file",
+    "Unevictable"    => "unevictable",
+    "Mlocked"        => "memory-locked",
+    "SwapTotal"      => "swap-total",
+    "SwapFree"       => "swap-free",
+    "Dirty"          => "dirty",
+    "Writeback"      => "writeback",
+    "AnonPages"      => "anonymous-pages",
+    "Mapped"         => "mapped",
+    "Shmem"          => "shared-memory",
+    "Slab"           => "slab",
+    "SReclaimable"   => "slab-reclaimable",
+    "SUnreclaim"     => "slab-non-reclaimable",
+    "KernelStack"    => "kernel-stack",
+    "PageTables"     => "page-tables",
+    "NFS_Unstable"   => "nfs-unstable",
+    "Bounce"         => "bounce",
+    "WritebackTmp"   => "writeback-tmp",
+    "CommitLimit"    => "commit-limit",
+    "Committed_AS"   => "total-committed-memory",
+    "VmallocTotal"   => "vmalloc-total",
+    "VmallocUsed"    => "vmalloc-used",
+    "VmallocChunk"   => "vmalloc-chunk",
+};
+
+sub get_mem_info {
+    my @general = (
+        "MemTotal",       "MemFree",
+        "MemAvailable",   "Buffers",
+        "Cached",         "SwapCached",
+        "Active",         "Inactive",
+        "Active(file)",   "Inactive(file)",
+        "Inactive(file)", "Unevictable",
+        "Mlocked",        "SwapTotal",
+        "SwapFree",       "Dirty",
+        "Writeback",      "AnonPages",
+        "Mapped",         "Shmem",
+        "Slab",           "SReclaimable",
+        "SUnreclaim",     "KernelStack",
+        "PageTables",     "NFS_Unstable",
+        "Bounce",         "WritebackTmp",
+        "CommitLimit",    "Committed_AS",
+        "VmallocTotal",   "VmallocUsed",
+        "VmallocChunk"
+    );
+
+    open( my $fh, $proc_meminfo_file )
+      or die "Could not read from $proc_meminfo_file\n";
+
+    my $out = {};
+    while (<$fh>) {
+
+        #get rid of the newline char
+        chomp;
+
+        #read the files in the current record into an array
+        my @fields   = split( ":", $_ );
+        my @field_kb = split( " ", $fields[1] );
+        my $kb_val = ( $field_kb[1] ) ? 1024 : 1;
+
+        switch ( $fields[0] ) {
+            case ( \@general ) {
+                $out->{ $output_map->{ $fields[0] } } = $field_kb[0] * $kb_val;
+            }
+            case "Active(anon)" {
+                $out->{"anonymous"}->{"active"} = $field_kb[0] * $kb_val;
+            }
+            case "Inactive(anon)" {
+                $out->{"anonymous"}->{"inactive"} = $field_kb[0] * $kb_val;
+            }
+            case "AnonHugePages" {
+                $out->{"huge-pages"}->{"anonymous"} = $field_kb[0] * $kb_val;
+            }
+            case "ShmemHugePages" {
+                $out->{"huge-pages"}->{"shared-memory"} =
+                  $field_kb[0] * $kb_val;
+            }
+            case "HugePages_Total" {
+                $out->{"huge-pages"}->{"total"} = $field_kb[0] * $kb_val;
+            }
+            case "HugePages_Free" {
+                $out->{"huge-pages"}->{"free"} = $field_kb[0] * $kb_val;
+            }
+            case "HugePages_Rsvd" {
+                $out->{"huge-pages"}->{"reserved"} = $field_kb[0] * $kb_val;
+            }
+            case "HugePages_Surp" {
+                $out->{"huge-pages"}->{"surplus"} = $field_kb[0] * $kb_val;
+            }
+            case "Hugepagesize" {
+                $out->{"huge-pages"}->{"size"} = $field_kb[0] * $kb_val;
+            }
+        }
+    }
+
+    return $out;
+}
+
+print encode_json( get_mem_info() );

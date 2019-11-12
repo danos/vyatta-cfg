@@ -1,0 +1,152 @@
+module vyatta-op-config-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-op-config:1";
+	prefix vyatta-op-config-v1;
+
+	import vyatta-opd-extensions-v1 {
+		prefix opd;
+	}
+
+	import vyatta-op-show-v1 {
+		prefix show;
+	}
+
+	organization "AT&T Inc.";
+	contact
+		"AT&T
+	 Postal: 208 S. Akard Street
+	 Dallas, TX 75202
+	 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018-2019, AT&T Intellectual Property.
+	 All rights reserved.
+
+	 Redistribution and use in source and binary forms, with or without
+	 modification, are permitted provided that the following conditions
+	 are met:
+
+	 1. Redistributions of source code must retain the above copyright
+	    notice, this list of conditions and the following disclaimer.
+	 2. Redistributions in binary form must reproduce the above
+	    copyright notice, this list of conditions and the following
+	    disclaimer in the documentation and/or other materials provided
+	    with the distribution.
+	 3. Neither the name of the copyright holder nor the names of its
+	    contributors may be used to endorse or promote products derived
+	    from this software without specific prior written permission.
+
+	 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+	 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+	 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+	 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+	 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+	 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+	 POSSIBILITY OF SUCH DAMAGE.
+
+	 SPDX-License-Identifier: BSD-3-Clause
+
+	 Defines the top level 'configure' verb for operational CLI
+	 and the 'show configuration' commands.";
+
+	revision 2019-04-23 {
+		description "Modify data-model-path script arguments";
+	}
+
+	revision 2019-03-18 {
+		description "Extend show configuration command with path option: 
+			show configuration [all | commands] [path <path>]";
+	}
+
+	revision 2018-07-16 {
+		description "Initial version";
+	}
+	opd:augment /show:show {
+		opd:command configuration {
+			opd:help "Show running configuration";
+			opd:on-enter "cli-shell-api showCfg " +
+				"--show-active-only " +
+				"--show-hide-secrets";
+
+			opd:command path {
+				opd:repeatable true;
+				opd:help "Show configuration at specified path";
+				opd:allowed "allowed-nodes";
+
+				opd:argument path {
+					type string;
+					opd:help "Configuration path";
+					opd:allowed "allowed-nodes ${@:4}";
+					opd:on-enter "cli-shell-api showCfg " +
+						"--path --show-active-only " +
+						"--show-hide-secrets " +
+						"${@:4} ";
+				}
+			}
+
+			opd:command all {
+				opd:help "Show running configuration " +
+					"(including default values)";
+				opd:on-enter "cli-shell-api showCfg " +
+					"--show-show-defaults " +
+					"--show-active-only " +
+					"--show-hide-secrets";
+
+				opd:command path {
+					opd:repeatable true;
+					opd:help "Show configuration at specified path";
+					opd:allowed "allowed-nodes";
+
+					opd:argument path {
+						type string;
+						opd:help "Configuration path";
+						opd:allowed "allowed-nodes ${@:5}";
+						opd:on-enter "cli-shell-api showCfg " +
+							"--show-show-defaults " +
+							"--path --show-active-only " +
+							"--show-hide-secrets " +
+							"${@:5} ";
+					}
+				}
+			}
+			opd:command commands {
+				opd:help "Show running configuration as set commands";
+				opd:on-enter "cli-shell-api showCfg --show-active-only | cfgcmds";
+
+				opd:command path {
+					opd:repeatable true;
+					opd:help "Show configuration at specified path";
+					opd:allowed "allowed-nodes";
+
+					opd:argument path {
+						type string;
+						opd:help "Configuration path";
+						opd:allowed "allowed-nodes ${@:5}";
+						opd:on-enter "cli-shell-api showCfg " +
+							"--path --show-active-only " +
+							"${@:5} | cfgcmds";
+					}
+				}
+			}
+			opd:command data-model-paths {
+				opd:help "Show all valid data-model paths";
+				opd:on-enter "yang2path -system";
+			}
+			opd:command files {
+				opd:help "Show available saved configurations";
+				opd:on-enter "list-configuration-files";
+			}
+		}
+	}
+	/* needs an equivalent of local:true from the template file
+	opd:command configure {
+		opd:help "Enter configuration mode";
+		opd:on-enter "configure";
+		opd:local true;
+	}
+	*/
+}

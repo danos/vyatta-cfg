@@ -1,0 +1,6 @@
+#!/bin/bash
+history -w
+export _OFR_CONFIGURE=ok
+vbash
+unset _OFR_CONFIGURE
+history -r

@@ -1,0 +1,6 @@
+opt/vyatta/share/perl5/Cstore.pm
+opt/vyatta/share/perl5/Vyatta/Config.pm
+opt/vyatta/share/perl5/Vyatta/Config/
+opt/vyatta/share/perl5/Vyatta/ConfigLoad.pm
+opt/vyatta/share/perl5/auto/Cstore
+usr/lib/libvyatta-c[os]*.so.*

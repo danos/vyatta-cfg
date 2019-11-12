@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+#
+# Copyright (c) 2017 Brocade Communications Systems, Inc.
+# All rights reserved
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
+use strict;
+use warnings;
+
+use JSON;
+
+my $proc_uptime_file = "/proc/uptime";
+my %out;
+
+sub build_output {
+    my ($up_time) = @_;
+    my %output;
+
+    $output{"uptime"} = $up_time;
+
+    return %output;
+}
+
+sub get_uptime {
+    my $row;
+    my @fields;
+    my @fields2;
+    my $up_time = 0;
+
+    open( my $fh, $proc_uptime_file )
+      or die "Could not read from $proc_uptime_file\n";
+    $row = <$fh>;
+
+    #get rid of the newline char
+    chomp $row;
+
+    #read the files in the current record into an array
+    @fields  = split( ":",  $row );
+    @fields2 = split( /\./, $fields[0] );
+    $up_time = $fields2[0];
+
+    return build_output($up_time);
+}
+
+%out = get_uptime();
+
+print encode_json( \%out );

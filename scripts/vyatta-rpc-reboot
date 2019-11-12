@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+# Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+#
+# Copyright (c) 2016 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
+use JSON;
+use DateTime::Format::ISO8601;
+use DateTime;
+
+$ENV{VYATTA_PROCESS_CLIENT} = "gui2_rest";
+
+my $tfmt = "%H:%M %Z %D";
+
+sub reboot_at {
+    my ($time) = @_;
+    my $output =
+`/opt/vyatta/bin/vyatta-shutdown.pl --action reboot_at --at_time \"$time\"`;
+    die $output if $? != 0;
+
+    print encode_json( {} );
+
+    exit 0;
+}
+
+sub reboot_now {
+
+  #for some reason we have to schedule 1 hour and 1 minute ahead to get 1 minute
+    my $time =
+      DateTime->now()->add( hours => 1, minutes => 1 )->strftime($tfmt);
+    reboot_at($time);
+}
+
+my $in = do { local $/ = undef; <> };
+my $input = decode_json($in);
+
+reboot_now if !defined( $input->{"at"} );
+
+my $time =
+  DateTime::Format::ISO8601->parse_datetime( $input->{"at"} )->strftime($tfmt);
+
+reboot_at($time);

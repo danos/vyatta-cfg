@@ -1,0 +1,225 @@
+Source: vyatta-cfg
+Section: contrib/net
+Priority: optional
+Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
+Build-Depends:
+ autoconf,
+ automake,
+ autotools-dev,
+ bison,
+ chrpath,
+ cpio,
+ debhelper (>= 9),
+ dh-python,
+ dh-yang,
+ doxygen,
+ flex,
+ libjansson-dev,
+ libperl-dev,
+ libtool,
+ liburiparser-dev,
+ libvyatta-util-dev (>=0.14),
+ pkg-config,
+ python-dev,
+ python3-dev,
+ ruby,
+ ruby-dev,
+ swig3.0
+Standards-Version: 3.9.6
+X-Python-Version: >= 2.7
+X-Python3-Version: >= 3.2
+
+Package: vyatta-cfg
+Architecture: any
+Depends:
+ adduser,
+ bsdutils (>=1:2.13),
+ cli-shell-api (>= ${binary:Version}),
+ config-utils,
+ libfile-sync-perl,
+ libio-prompt-perl,
+ libjson-perl,
+ libvyatta-config-perl,
+ libxml-xpath-perl,
+ procps (>= 1:3.2.7-3),
+ sed (>= 4.1.5),
+ sysstat,
+ vcli,
+ vyatta-config-shell,
+ vyatta-dataplane-cfg-arp-0,
+ vyatta-interfaces (>= 1.48),
+ vyatta-op-config-v1-yang,
+ ${misc:Depends},
+ ${perl:Depends},
+ ${shlibs:Depends}
+Description: Vyatta configuration system
+ This package provides the Vyatta configuration system, including the base
+ configuration templates and the config-mode CLI completion mechanism.
+
+Package: cli-shell-api
+Architecture: any
+Depends:
+ libvyatta-cfg1 (>= ${binary:Version}),
+ vyatta-curl-wrapper,
+ ${misc:Depends},
+ ${perl:Depends},
+ ${shlibs:Depends}
+Recommends: configd
+Description: Legacy cli-shell-api
+ This package provides the cli-shell-api that implements portions of
+ the configuration mode shell
+
+Package: vcli
+Architecture: all
+Depends:
+ bash (>= 5~) | vyatta-bash (>= 1:4.4-1vyatta12),
+ cli-shell-api,
+ config-utils,
+ vyatta-config-shell,
+ vyatta-op-shell,
+ ${misc:Depends},
+Description: Scriptable vyatta like shell environment.
+ This package provides a wrapper that allows writing shell scripts with
+ Vyatta commands in them.
+
+Package: vyatta-config-shell
+Architecture: all
+Depends: bash (>= 5~) | vyatta-bash (>= 1:4.4-1vyatta12), config-utils,
+ ${misc:Depends},
+Recommends: configd
+Description: Configuration mode CLI
+ This package provides the CLI for the configuration mode shell
+
+Package: libvyatta-cfg1
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Recommends: configd (>= 1.24)
+Provides: libvyatta-config-perl
+Description: vyatta-cfg back-end library
+ Vyatta configuration back-end library (libvyatta-cfg).
+
+Package: libvyatta-cfg-dev
+Architecture: any
+Section: contrib/libdevel
+Depends: libvyatta-cfg1 (=${binary:Version}), ${misc:Depends}
+Description: libvyatta-cfg development package
+ Development header and library files for the Vyatta configuration back-end
+ library.
+
+Package: libvyatta-cfg-dbg
+Architecture: any
+Section: contrib/debug
+Depends: libvyatta-cfg1 (=${binary:Version}), ${misc:Depends}
+Description: libvyatta-cfg debug symbols
+ Debug symbols for the Vyatta configuration back-end
+ library.
+
+Package: python-vyatta-cfgclient
+Section: contrib/python
+Architecture: any
+Depends: libvyatta-cfg1, ${misc:Depends}, ${python:Depends}, ${shlibs:Depends}
+X-Python-Version: >= 2.7
+Description: Python bindings to Vyatta config client API
+ Python wrapper for Vyatta configuration client API
+
+Package: python3-vyatta-cfgclient
+Section: contrib/python
+Architecture: any
+Depends: libvyatta-cfg1, ${misc:Depends}, ${python3:Depends}, ${shlibs:Depends}
+X-Python3-Version: >= 3.2
+Description: Python 3 bindings to Vyatta config client API
+ Python 3 wrapper for Vyatta configuration client API
+
+Package: libvyatta-cfgclient-perl
+Architecture: any
+Section: contrib/perl
+Depends: libvyatta-cfg1, ${misc:Depends}, ${perl:Depends}, ${shlibs:Depends}
+Description: Perl bindings to Vyatta config client API
+ Perl wrapper for Vyatta configuration client API
+
+Package: ruby-vyatta-cfgclient
+Architecture: any
+Depends: libvyatta-cfg1, ${misc:Depends}, ${ruby:Depends}, ${shlibs:Depends}
+Description: Ruby bindings to Vyatta config client API
+ Ruby wrapper for Vyatta configuration client API
+
+Package: vyatta-dscp-v1-yang
+Architecture: all
+Conflicts: vyatta-cfg (<< 1.20)
+Replaces: vyatta-cfg (<< 1.20)
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-dscp-v1 module
+ The YANG module for vyatta-dscp-v1
+
+Package: vyatta-interfaces-v1-yang
+Architecture: all
+Conflicts: vyatta-cfg (<< 1.20)
+Replaces: vyatta-cfg (<< 1.20)
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-interfaces-v1 module
+ The YANG module for vyatta-interfaces-v1
+
+Package: vyatta-policy-v1-yang
+Architecture: all
+Depends: vyatta-cfg (>= ${source:Version}), ${yang:Depends}, ${misc:Depends},
+Description: vyatta-policy-v1 module
+ The YANG module for vyatta-policy-v1
+
+Package: vyatta-resources-v1-yang
+Architecture: all
+Conflicts: vyatta-cfg (<< 1.20)
+Replaces: vyatta-cfg (<< 1.20)
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-resources-v1 module
+ The YANG module for vyatta-resources-v1
+
+Package: vyatta-security-v1-yang
+Architecture: all
+Conflicts: vyatta-cfg (<< 1.20)
+Replaces: vyatta-cfg (<< 1.20)
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-security-v1 module
+ The YANG module for vyatta-security-v1
+
+Package: vyatta-services-v1-yang
+Architecture: all
+Conflicts: vyatta-cfg (<< 1.20)
+Replaces: vyatta-cfg (<< 1.20)
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-services-v1 module
+ The YANG module for vyatta-services-v1
+
+Package: vyatta-system-v1-yang
+Architecture: all
+Conflicts: vyatta-cfg (<< 0.117)
+Replaces: vyatta-cfg (<< 0.117)
+Depends:
+ libdatetime-format-iso8601-perl,
+ ${misc:Depends},
+ ${perl:Depends},
+ ${yang:Depends}
+Description: vyatta-system-v1 module
+ The YANG module for vyatta-system-v1-yang
+
+Package: vyatta-system-acm-v1-yang
+Architecture: all
+Conflicts: vyatta-cfg (<< 1.20)
+Replaces: vyatta-cfg (<< 1.20)
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-system-acm-v1 module
+ The YANG module for vyatta-system-acm-v1
+
+Package: vyatta-types-v1-yang
+Architecture: all
+Conflicts: vyatta-cfg (<< 1.20)
+Replaces: vyatta-cfg (<< 1.20)
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-types-v1 module
+ The YANG module for vyatta-types-v1
+
+Package: vyatta-op-config-v1-yang
+Architecture: all
+Depends: cli-shell-api, vyatta-config-shell, yang-utils, ${yang:Depends},
+ ${misc:Depends},
+Description: Yang module for operational configure command
+ The YANG module for vyatta's configure command

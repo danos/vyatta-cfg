@@ -1,0 +1,13 @@
+etc/default/vyatta-load-boot
+etc/logrotate.d
+opt/vyatta/bin/cliexec
+opt/vyatta/etc
+opt/vyatta/sbin/allowed-nodes
+opt/vyatta/sbin/vyatta-boot-config-loader
+opt/vyatta/sbin/vyatta-cfg-notify
+opt/vyatta/sbin/vyatta-config-gen-sets.pl
+opt/vyatta/sbin/vyatta-delete-addrs.pl
+opt/vyatta/sbin/vyatta-load-config.pl
+opt/vyatta/sbin/vyatta-log-commit.pl
+opt/vyatta/sbin/vyatta-save-config.pl
+opt/vyatta/sbin/vyatta-validate-type.pl

@@ -1,0 +1,6 @@
+scripts/vyatta-rpc-reboot opt/vyatta/sbin
+scripts/vyatta-system-state-memory opt/vyatta/sbin
+scripts/vyatta-system-state-platform opt/vyatta/sbin
+scripts/vyatta-system-state-uptime opt/vyatta/sbin
+scripts/vyatta-system-state-utilization opt/vyatta/sbin
+yang/vyatta-system-v1.yang usr/share/configd/yang

@@ -1,0 +1,85 @@
+#!/bin/bash
+# Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+#
+# Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
+. /opt/vyatta/share/vyatta-cfg/functions/script-wrapper
+
+function usage () {
+	echo 'vcli [ OPTIONS ]' >&2
+	echo -e '\tOPTIONS: { -s SID | -c COMMAND | -i | -f FILE | -- SCRIPT_OPTIONS }' >&2
+	echo -e '\t\t-i interactive modeless shell'
+	echo -e '\t\t-s SID configuration session id if not provided uses PID'
+	echo -e '\t\t-c COMMAND one shot command'
+	echo -e '\t\t-f FILE file to run'
+	echo -e '\tNOTES:'
+	echo -e $'\t\t\'-f FILE\' is treated as a delimiter for SCRIPT_OPTIONS as well' >&2
+	echo -e '\t\tvcli will read a full script from standard in if no options are provided'
+	builtin exit 1
+}
+
+MODE=""
+while getopts ":s:f:ci" opt; do
+	case $opt in
+	s)
+		SID=$OPTARG
+		;;
+	c)
+		MODE=$MODE"c"
+		;;
+	i)
+		MODE=$MODE"i"
+		;;
+	f)
+		MODE=$MODE"f"
+		FILE=$OPTARG
+		break
+		;;
+	-)
+		break
+		;;
+	\?)
+		echo "Invalid option: -$OPTARG" >&2
+		usage
+		;;
+	:)
+		echo "Option -$OPTARG requires an argument." >&2
+		usage
+		;;
+	esac
+done
+shift $((OPTIND-1))
+
+if [ -z "$SID" ]; then
+	SID=$BASHPID
+fi
+
+setup_env $SID
+
+case $MODE in
+c)
+	bash -c "$@"
+	builtin exit $?
+	;;
+i)
+	export PS1="vcli> "
+	bash --norc --noprofile -i
+	builtin exit $?
+	;;
+f)
+	bash "$FILE" "$@"
+	builtin exit $?
+	;;
+.*)
+	echo "Invalid set of options" >&2
+	builtin exit 1
+	;;
+esac
+
+t=$(tempfile) || exit
+trap "rm -f -- '$t'" EXIT
+cat > "$t"
+bash "$t" "$@"

@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+
+# Build as relocatable
+export DEB_BUILD_HARDENING=1
+
+export PYBUILD_NAME = cfgclient
+
+CPPFLAGS += $(shell dpkg-buildflags --get CPPFLAGS)
+CFLAGS += $(shell dpkg-buildflags --get CFLAGS)
+LDFLAGS += $(shell dpkg-buildflags --get LDFLAGS)
+
+cfg_opts := --prefix=/opt/vyatta
+cfg_opts += --libdir=/usr/lib
+cfg_opts += --includedir=/usr/include
+cfg_opts += --mandir=\$${prefix}/share/man
+cfg_opts += --infodir=\$${prefix}/share/info
+cfg_opts += CFLAGS="$(CFLAGS)"
+cfg_opts += LDFLAGS="-Wl,-z,defs"
+cfg_opts += CXXFLAGS="$(CXXFLAGS)"
+
+%:
+	dh $@ --with python2 --with python3 --with yang
+
+override_dh_auto_configure:
+	autoreconf -i --force
+	./configure $(cfg_opts)
+
+override_dh_strip:
+	dh_strip --dbg-package=libvyatta-cfg-dbg
+
+override_dh_python2:
+	dh_python2 --namespace=vyatta

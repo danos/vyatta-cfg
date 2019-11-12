@@ -1,0 +1,217 @@
+#!/bin/bash
+# Copyright (c) 2018-2019 AT&T Intellectual Property.
+# All rights reserved.
+# Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: LGPL-2.1-only
+
+# Set up aliases and functions for using in scripts
+# Usage: source /opt/vyatta/etc/functions/script-wrapper
+shopt -s expand_aliases
+
+# Include environment for with vyatta paths
+source /etc/default/vyatta
+
+export PATH=/opt/vyatta/bin:/opt/vyatta/sbin:$PATH
+
+export API=/bin/cli-shell-api
+
+# "pipe" functions
+function count ()
+{
+	wc -l
+}
+export -f count
+
+function match ()
+{
+	grep -E -e "$1"
+}
+export -f match
+
+function setup_env()
+{
+	local SID
+	if [[ $# -lt 1 ]]; then
+		SID=$BASHPID
+	else
+		SID=$1
+	fi
+
+	local session_env="umask 002; "
+	session_env+="export VYATTA_EDIT_LEVEL=/; "
+	session_env+="export VYATTA_CONFIG_SID=$SID"
+
+	eval "$session_env"
+}
+export -f setup_env
+
+function list()
+{
+	local ntype=$(cli-shell-api getNodeType "${@:1}")
+	case $ntype in
+	tag|non-leaf)
+		local -a tmp
+		eval "tmp=( $($API listEffectiveNodes "${@:1}") )"
+		echo "${tmp[@]}"
+		;;
+	multi)
+		local -a tmp
+		eval "tmp=( $($API returnEffectiveValues "${@:1}") )"
+		echo "${tmp[@]}"
+		;;
+	leaf)
+		local -a tmp
+		eval "tmp=( $($API returnEffectiveValue "${@:1}") )"
+		echo "${tmp[@]}"
+		;;
+	esac
+}
+export -f list
+
+function end_configure ()
+{
+	$API teardownSession
+}
+export -f end_configure
+
+function reset_edit_level ()
+{
+	edit_env=$($API getEditResetEnv)
+	eval "$edit_env"
+	return $?
+}
+export -f reset_edit_level
+
+function edit ()
+{
+	edit_env=$($API getEditEnv "$@")
+	eval "$edit_env"
+}
+export -f edit
+
+function top ()
+{
+	if $API editLevelAtRoot; then
+		echo "Already at the top level"
+		return 0
+	fi
+
+	# go to the top level.
+	reset_edit_level
+}
+export -f top
+
+function up ()
+{
+	edit_env=$($API getEditUpEnv "$@")
+	eval "$edit_env"
+}
+export -f up
+
+function cmd_helper ()
+{
+	cmd=$(cfgcli -print "$@") && eval "$cmd"
+}
+export -f cmd_helper
+
+function show ()
+{
+	$API showConfig "$@"
+}
+export -f show
+
+function set ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f set
+
+function delete ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f delete
+
+function move ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f move
+
+function discard ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f discard
+
+function commit ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f commit
+
+function validate ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f validate
+
+function comment ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f comment
+
+function compare ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f compare
+
+function run ()
+{
+	opc "$@"
+}
+export -f run
+
+function configure ()
+{
+	$API setupSession
+}
+export -f configure
+
+function load ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f load
+
+function merge ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f merge
+
+function save ()
+{
+	if [[ -z "$*" ]]; then
+		$API saveConfig
+	else
+		cmd_helper "${FUNCNAME[0]}" "$@"
+	fi
+}
+export -f save
+
+function noninteractive ()
+{
+	export VYATTA_PROCESS_CLIENT="gui2_rest"
+}
+export -f noninteractive
+
+function interactive ()
+{
+	unset VYATTA_PROCESS_CLIENT
+}
+export -f interactive

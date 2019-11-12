@@ -1,0 +1,216 @@
+module vyatta-dscp-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-dscp:1";
+	prefix vyatta-dscp-v1;
+
+	import ietf-inet-types {
+		prefix inet;
+	}
+	import configd-v1 {
+		prefix configd;
+	}
+
+	organization "AT&T Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+				 Dallas, TX 75202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2019 AT&T Intellectual Property
+		 All rights reserved.
+
+		 Copyright (c) 2015-2016 by Brocade Communications Systems, Inc.
+		 All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or without
+		 modification, are permitted provided that the following conditions
+		 are met:
+
+		 1. Redistributions of source code must retain the above copyright
+		    notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+		    copyright notice, this list of conditions and the following
+		    disclaimer in the documentation and/or other materials provided
+		    with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+		    contributors may be used to endorse or promote products derived
+		    from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 This module implements vyatta-dscp-v1.";
+
+	revision 2019-03-22 {
+		description "Add types with 'cs0' enum in place of 'default'";
+	}
+	revision 2015-08-05 {
+		description "Initial revision of version 1.";
+	}
+
+	typedef dscp-name-common {
+		reference "http://www.iana.org/assignments/dscp-registry/dscp-registry.xhtml#dscp-registry-1";
+		type enumeration {
+			enum cs1 {
+				reference "RFC 2474";
+				configd:help "Class Selector 1 (001000)";
+				value 8;
+			}
+			enum cs2 {
+				reference "RFC 2474";
+				configd:help "Class Selector 2 (010000)";
+				value 16;
+			}
+			enum cs3 {
+				reference "RFC 2474";
+				configd:help "Class Selector 3 (011000)";
+				value 24;
+			}
+			enum cs4 {
+				reference "RFC 2474";
+				configd:help "Class Selector 4 (100000)";
+				value 32;
+			}
+			enum cs5 {
+				reference "RFC 2474";
+				configd:help "Class Selector 5 (101000)";
+				value 40;
+			}
+			enum cs6 {
+				reference "RFC 2474";
+				configd:help "Class Selector 6 (110000)";
+				value 48;
+			}
+			enum cs7 {
+				reference "RFC 2474";
+				configd:help "Class Selector 7 (111000)";
+				value 56;
+			}
+			enum af11 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 1, Low Drop Precedence (001010)";
+				value 10;
+			}
+			enum af12 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 1, Medium Drop Precedence (001100)";
+				value 12;
+			}
+			enum af13 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 1, High Drop Precedence (001110)";
+				value 14;
+			}
+			enum af21 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 2, Low Drop Precedence (010010)";
+				value 18;
+			}
+			enum af22 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 2, Medium Drop Precedence (010100)";
+				value 20;
+			}
+			enum af23 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 2, High Drop Precedence (010110)";
+				value 22;
+			}
+			enum af31 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 3, Low Drop Precedence (011010)";
+				value 26;
+			}
+			enum af32 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 3, Medium Drop Precedence (011100)";
+				value 28;
+			}
+			enum af33 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 3, High Drop Precedence (011110)";
+				value 30;
+			}
+			enum af41 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 4, Low Drop Precedence (100010)";
+				value 34;
+			}
+			enum af42 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 4, Medium Drop Precedence (100100)";
+				value 36;
+			}
+			enum af43 {
+				reference "RFC 2597";
+				configd:help "Assured Forwarding Class 4, High Drop Precedence (100110)";
+				value 38;
+			}
+			enum ef {
+				reference "RFC 3246";
+				configd:help "Expedited Forwarding, Per-Hop Behavior (101110)";
+				value 46;
+			}
+			enum va {
+				reference "RFC 5865";
+				configd:help "Voice Admit, Capacity-Admitted Traffic (101100)";
+				value 44;
+			}
+		}
+	}
+
+	typedef dscp-name {
+		reference "http://www.iana.org/assignments/dscp-registry/dscp-registry.xhtml#dscp-registry-1";
+		type union {
+			type enumeration {
+				enum default {
+					reference "RFC 2474";
+					configd:help "Default Class (000000)";
+					value 0;
+				}
+			}
+			type dscp-name-common;
+		}
+	}
+
+	typedef dscp-name-or-value {
+		type union {
+			type inet:dscp;
+			type dscp-name;
+		}
+	}
+
+	typedef dscp-name-with-cs0 {
+		reference "http://www.iana.org/assignments/dscp-registry/dscp-registry.xhtml#dscp-registry-1";
+		type union {
+			type enumeration {
+				enum cs0 {
+					reference "RFC 2474";
+					configd:help "Class Selector 0 (000000)";
+					value 0;
+				}
+			}
+			type dscp-name-common;
+		}
+	}
+
+	typedef dscp-name-or-value-with-cs0 {
+		type union {
+			type inet:dscp;
+			type dscp-name-with-cs0;
+		}
+	}
+}

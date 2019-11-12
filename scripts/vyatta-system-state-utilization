@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+#
+# Copyright (c) 2017 Brocade Communications Systems, Inc.
+# All rights reserved
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
+use strict;
+use warnings;
+
+use JSON;
+
+my @util_out;
+
+sub build_output {
+    my ($in) = @_;
+
+    my $item;
+
+    $item = {
+        "cpu"         => $in->{cpu},
+        "user"        => $in->{user},
+        "nice"        => $in->{nice},
+        "sys"         => $in->{sys},
+        "iowait"      => $in->{iowait},
+        "irq"         => $in->{irq},
+        "soft"        => $in->{soft},
+        "steal"       => $in->{steal},
+        "guest"       => $in->{guest},
+        "niced-guest" => $in->{gnice},
+        "idle"        => $in->{idle}
+    };
+
+    push @util_out, $item;
+
+}
+
+sub get_cpu_utils {
+    my $cpu_utils = `mpstat -P ALL`;
+    my @utils_array = split( /\n/m, $cpu_utils );
+
+    for ( my $i = 3 ; $utils_array[$i] ; $i++ ) {
+        my @line_array = grep { /\S/ } split( /\s/m, $utils_array[$i] );
+
+        shift @line_array;    #skip time
+        shift @line_array;    #skip AM/PM
+
+        my $item;
+
+        $item = {
+            "cpu"    => shift @line_array,
+            "user"   => shift @line_array,
+            "nice"   => shift @line_array,
+            "sys"    => shift @line_array,
+            "iowait" => shift @line_array,
+            "irq"    => shift @line_array,
+            "soft"   => shift @line_array,
+            "steal"  => shift @line_array,
+            "guest"  => shift @line_array,
+            "gnice"  => shift @line_array,
+            "idle"   => shift @line_array
+        };
+
+        build_output($item);
+    }
+
+    my %output;
+    $output{"utilization"} = \@util_out;
+    return %output;
+}
+
+my %out = get_cpu_utils();
+
+print encode_json( \%out );

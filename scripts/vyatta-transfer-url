@@ -1,0 +1,98 @@
+#! /usr/bin/perl
+
+# **** License ****
+# Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+#
+# Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# **** End License ****
+
+use Getopt::Long;
+use lib "/opt/vyatta/share/perl5/";
+use strict;
+use warnings;
+
+use File::Basename;
+
+my $ri_name;
+my $outfile;
+my $infile;
+GetOptions(
+    'ri=s'      => \$ri_name,
+    'outfile=s' => \$outfile,
+    'infile=s'  => \$infile,
+);
+
+my $progname = basename($0);
+
+sub usage {
+    return
+"Usage: $progname [ --ri=<ri_name> ] [ --outfile=<filename> | --infile=<filename> ] <url>\n";
+}
+
+sub check_http {
+    my ($url) = @_;
+
+    #
+    # error codes are send back in html, so 1st try a header
+    # and look for "HTTP/1.1 200 OK"
+    #
+    my $rc = `vyatta-curl-wrapper -q -s -I $url 2>&1`;
+    if ( $rc =~ /HTTP\/\d+\.?\d\s+(\d+)\s+(.*)$/mi ) {
+        my $rc_code   = $1;
+        my $rc_string = $2;
+
+        die "http error: [$rc_code] $rc_string\n"
+          unless ( $rc_code == 200 );
+    }
+    else {
+        die "Error: $rc\n";
+    }
+    return;
+}
+
+if ( $#ARGV != 0 ) {
+    die usage();
+}
+
+my $url = $ARGV[0];
+unless ( $url =~ m#(^[^/]\w+)://# ) {
+    die "Can not parse URL $url\n";
+}
+my $proto = $1;
+
+my @args;
+if ($ri_name) {
+
+    # re-exec in the proper routing-instance, leaving off ri_name
+    if ($outfile) {
+        @args = ( "/usr/sbin/chvrf", $ri_name, $0, "--outfile=$outfile", $url );
+    }
+    elsif ($infile) {
+        @args = ( "/usr/sbin/chvrf", $ri_name, $0, "--infile=$infile", $url );
+    }
+    else {
+        @args = ( "/usr/sbin/chvrf", $ri_name, $0, $url );
+    }
+    exec @args;
+    die "Exec @args failed: $!\n";
+}
+
+check_http($url)
+  if ( $proto eq 'http' );
+
+if ($outfile) {
+    @args = ( "vyatta-curl-wrapper", "-#", "-o", "$outfile", "$url" );
+}
+elsif ($infile) {
+    @args = ( "vyatta-curl-wrapper", "-#", "-T", "$infile", "$url" );
+}
+else {
+    # return data in stdout
+    @args = ( "vyatta-curl-wrapper", "-#", "$url" );
+}
+exec @args;
+die "Exec @args failed: $!\n";

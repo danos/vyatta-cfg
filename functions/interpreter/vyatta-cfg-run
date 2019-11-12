@@ -1,0 +1,56 @@
+# vyatta configuration mode command interpreter functions
+
+# **** License ****
+# Copyright (c) 2019 AT&T Intellectual Property.
+# All Rights Reserved.
+#
+# Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+# SPDX-License-Identifier: LGPL-2.1-only
+#
+# Author: Vyatta
+# Description: Command interpreter functions for config mode
+#
+# **** End License ****
+source /lib/cfgcli/cfgcli-args-encoder
+
+### Top level command wrappers ###
+reset_edit_level ()
+{
+  eval "$(cli-shell-api getEditResetEnv)"
+  return $?
+}
+
+really_exit()
+{
+  cli-shell-api teardownSession
+  unset _OFR_CONFIGURE
+  builtin exit 0
+}
+
+enable_feature()
+{
+  /opt/vyatta/bin/featcaps "$@"
+}
+
+disable_feature()
+{
+  /opt/vyatta/bin/featcaps -disable "$@"
+}
+
+### Main run command ###
+vyatta_cfg_run ()
+{
+  if [[ $1 == "set" && ( $2 == "+v" || $2 == "-v") ]]; then
+    builtin $@
+  else
+    cmd=$(CFGCLI_ARGS=$(cfgcli_encode_args "$@") cfgcli -print -args-in-env) && eval "$cmd"
+  fi
+}
+
+### Initalize top level command alias and completion functions
+_vyatta_cfg_init ()
+{
+    eval "$(cfgcli --action init)"
+}

@@ -1,0 +1,452 @@
+module vyatta-system-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-system:1";
+	prefix vyatta-system-v1;
+
+	import configd-v1 { prefix configd; }
+	import ietf-yang-types { prefix ytypes; }
+
+	organization "AT&T Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+		         Dallas, TX 75202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2019, AT&T Intellectual Property.
+		 All rights reserved.
+
+		 Copyright (c) 2014-2017 by Brocade Communications Systems, Inc.
+		 All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or without
+		 modification, are permitted provided that the following conditions
+		 are met:
+
+		 1. Redistributions of source code must retain the above copyright
+		    notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+		    copyright notice, this list of conditions and the following
+		    disclaimer in the documentation and/or other materials provided
+		    with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+		    contributors may be used to endorse or promote products derived
+		    from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 The YANG module for vyatta-system-v1-yang";
+
+	revision 2017-03-05 {
+		description "Add operational state data definitions to support
+			     retrieval of system stats";
+	}
+	revision 2017-01-24 {
+		description "Add reboot RPC";
+	}
+	revision 2016-01-28 {
+		description "Add operational state data definitions to support
+			     retrieval of software version";
+	}
+	revision 2015-08-05 {
+		description "Initial revision of version 1.";
+	}
+
+	typedef percent {
+		type decimal64 {
+			fraction-digits 2;
+			range "0 .. 100";
+		}
+		description "Percentage 100th based";
+	}
+
+	container system {
+		configd:help "System parameters";
+
+		container state {
+			config false;
+			description "System operational state";
+			container platform {
+				configd:get-state "vyatta-system-state-platform";
+				description
+					"Contains information for identifying the system platform.";
+				leaf os-name {
+					type string;
+					description
+						"The current platform name.";
+				}
+				leaf os-release {
+					type string;
+					description
+						"The current release.";
+				}
+				leaf os-version {
+					type string;
+					description
+						"The current version level.";
+				}
+			}
+			container memory {
+				configd:get-state "vyatta-system-state-memory";
+				description
+					"Information describing the system current RAM usage.";
+				leaf total-memory {
+					type uint64;
+					units "byte";
+					description
+						"Total usable memory.";
+				}
+				leaf free-memory {
+					type uint64;
+					units "byte";
+					description
+						"The amount of physical memory not used by the system.";
+				}
+				leaf available-memory {
+					type uint64;
+					units "byte";
+					description
+						"An estimate of how much memory is available " +
+						"for starting new applications, without swapping.";
+				}
+				leaf buffers {
+					type uint64;
+					units "byte";
+					description
+						"Memory in buffer cache, so relatively temporary " +
+						"storage for raw disk blocks. This shouldn't get very large.";
+				}
+				leaf cached {
+					type uint64;
+					units "byte";
+					description
+						"Memory in the pagecache (Diskcache and Shared Memory).";
+				}
+				leaf swap-cached {
+					type uint64;
+					units "byte";
+					description
+						"Memory that is present within main memory, but also in the swapfile.";
+				}
+				leaf active {
+					type uint64;
+					units "byte";
+					description
+						"Memory that has been used more recently and usually not swapped out or reclaimed.";
+				}
+				leaf inactive {
+					type uint64;
+					units "byte";
+					description
+						"Memory that has not been used recently and can be swapped out or reclaimed.";
+				}
+				leaf active-file {
+					type uint64;
+					units "byte";
+					description
+						"Pagecache memory that has been used more recently and usually not reclaimed until needed.";
+				}
+				leaf inactive-file {
+					type uint64;
+					units "byte";
+					description
+						"Pagecache memory that can be reclaimed without huge performance impact.";
+				}
+				leaf unevictable {
+					type uint64;
+					units "byte";
+					description
+						"Unevictable pages can't be swapped out for a variety of reasons.";
+				}
+				leaf memory-locked {
+					type uint64;
+					units "byte";
+					description
+						"Pages locked to memory using the mlock() system call. " +
+						"Mlocked pages are also unevictable.";
+				}
+				leaf swap-total {
+					type uint64;
+					units "byte";
+					description
+						"Total swap space available.";
+				}
+				leaf swap-free {
+					type uint64;
+					units "byte";
+					description
+						"The remaining swap space available.";
+				}
+				leaf dirty {
+					type uint64;
+					units "byte";
+					description
+						"Memory waiting to be written back to disk.";
+				}
+				leaf writeback {
+					type uint64;
+					units "byte";
+					description
+						"Memory which is actively being written back to disk.";
+				}
+				leaf anonymous-pages {
+					type uint64;
+					units "byte";
+					description
+						"Non-file backed pages mapped into userspace page tables.";
+				}
+				leaf mapped {
+					type uint64;
+					units "byte";
+					description
+						"Files which have been mmaped, such as libraries.";
+				}
+				leaf shared-memory {
+					type uint64;
+					units "byte";
+					description
+						"Total used shared memory.";
+				}
+				leaf slab {
+					type uint64;
+					units "byte";
+					description
+						"In-kernel data structures cache.";
+				}
+				leaf slab-reclaimable {
+					type uint64;
+					units "byte";
+					description
+						"The part of the Slab that might be reclaimed.";
+				}
+				leaf slab-non-reclaimable {
+					type uint64;
+					units "byte";
+					description
+						"The part of the Slab that can't be reclaimed under memory pressure.";
+				}
+				leaf kernel-stack {
+					type uint64;
+					units "byte";
+					description
+						"The memory the kernel stack uses. This is not reclaimable.";
+				}
+				leaf page-tables {
+					type uint64;
+					units "byte";
+					description
+						"Amount of memory dedicated to the lowest level of page tables.";
+				}
+				leaf nfs-unstable {
+					type uint64;
+					units "byte";
+					description
+						"NFS pages sent to the server, but not yet commited to the storage.";
+				}
+				leaf bounce {
+					type uint64;
+					units "byte";
+					description
+						"Memory used for block device bounce buffers.";
+				}
+				leaf writeback-tmp {
+					type uint64;
+					units "byte";
+					description
+						"Memory used by FUSE for temporary writeback buffers.";
+				}
+				leaf commit-limit {
+					type uint64;
+					units "byte";
+					description
+						"Based on the overcommit ratio, this is the total amount " +
+						"of memory currently available to be allocated on the system.";
+				}
+				leaf total-committed-memory {
+					type uint64;
+					units "byte";
+					description
+						"The amount of memory presently allocated on the system.";
+				}
+				leaf vmalloc-total {
+					type uint64;
+					units "byte";
+					description
+						"Total size of vmalloc memory area.";
+				}
+				leaf vmalloc-used {
+					type uint64;
+					units "byte";
+					description
+						"Amount of vmalloc area which is used.";
+				}
+				leaf vmalloc-chunk {
+					type uint64;
+					units "byte";
+					description
+						"Largest contiguous block of vmalloc area which is free.";
+				}
+				container huge-pages {
+					leaf anonymous {
+						type uint64;
+						units "byte";
+						description
+							"Non-file backed huge pages mapped into userspace page tables.";
+					}
+					leaf shared-memory {
+						type uint64;
+						units "byte";
+						description
+							"Total used shared memory in huge pages.";
+					}
+					leaf total {
+						type uint64;
+						units "byte";
+						description
+							"Number of hugepages being allocated by the kernel.";
+					}
+					leaf free {
+						type uint64;
+						units "byte";
+						description
+							"The number of hugepages not being allocated by a process.";
+					}
+					leaf reserved {
+						type uint64;
+						units "byte";
+						description
+							"The number of hugepages for which a commitment to allocate from the " +
+							 "pool has been made, but no allocation has yet been made.";
+					}
+					leaf surplus {
+						type uint64;
+						units "byte";
+						description
+							"The number of hugepages in the pool above the value in vm.nr_hugepages.";
+					}
+					leaf size {
+						type uint64;
+						units "byte";
+						description
+							"The size of a hugepage.";
+					}
+				}
+				container anonymous {
+					description
+						"Information describing the system anonymous RAM usage.";
+					leaf active {
+						type uint64;
+						units "byte";
+						description
+							"Anonymous memory that has been used more recently and usually not swapped out.";
+					}
+					leaf inactive {
+						type uint64;
+						units "byte";
+						description
+							"Anonymous memory that has not been used recently and can be swapped out.";
+					}
+				}
+			}
+			container times {
+				configd:get-state "vyatta-system-state-uptime";
+				description
+					"Contains information for identifying the system times.";
+				leaf uptime {
+					type uint64;
+					units "seconds";
+					description
+						"How long the system has been running.";
+				}
+			}
+			container processor {
+				configd:get-state "vyatta-system-state-utilization";
+				description
+					"Contains information for identifying the system processor information.";
+				list utilization {
+					description
+						"Processor utilizations.";
+					key cpu;
+					leaf cpu {
+						type string;
+						description
+							"All CPU or the CPU number.";
+					}
+					leaf user {
+						type percent;
+						description
+							"User usage.";
+					}
+					leaf nice {
+						type percent;
+						description
+							"Nice usage.";
+					}
+					leaf sys {
+						type percent;
+						description
+							"Sys usage.";
+					}
+					leaf iowait {
+						type percent;
+						description
+							"IOwait usage.";
+					}
+					leaf irq {
+						type percent;
+						description
+							"irq usage.";
+					}
+					leaf soft {     
+						type percent;
+						description
+							"soft usage.";
+					}
+					leaf steal {
+						type percent;
+						description
+							"steal usage.";
+					}
+					leaf guest {
+						type percent;
+						description
+							"guest usage.";
+					}
+					leaf niced-guest {
+						type percent;
+						description
+							"niced guest usage.";
+					}
+					leaf idle {
+						type percent;
+						description
+							"idle usage.";
+					}
+				}
+			}
+		}
+	}
+	rpc reboot {
+		description "Reboot the device";
+		input {
+			leaf at {
+				description "Defer reboot until the specified time";
+				type ytypes:date-and-time;
+			}
+		}
+		configd:call-rpc "vyatta-rpc-reboot";
+	}
+}
