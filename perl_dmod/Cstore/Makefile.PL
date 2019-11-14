@@ -70,7 +70,7 @@ WriteMakefile(
     PREREQ_PM         => {},
     ($] >= 5.005 ?
       (ABSTRACT_FROM  => 'lib/Cstore.pm',
-       AUTHOR         => 'Vyatta <eng@vyatta.com>') : ()),
+       AUTHOR         => 'Vyatta Package Maintainers <DL-vyatta-help@att.com>') : ()),
     # note: MM will convert LIBS to absolute path in Makefile.
     #       => regenerate Makefile every time
     LIBS   => ['-L../../src/.libs -lvyatta-cstore-compat'],
