@@ -53,6 +53,11 @@ module vyatta-op-config-v1 {
 	 Defines the top level 'configure' verb for operational CLI
 	 and the 'show configuration' commands.";
 
+	revision 2019-10-04 {
+		description "Modify script arguments to allow correct " +
+			"redaction of secrets";
+	}
+
 	revision 2019-04-23 {
 		description "Modify data-model-path script arguments";
 	}
@@ -69,8 +74,7 @@ module vyatta-op-config-v1 {
 		opd:command configuration {
 			opd:help "Show running configuration";
 			opd:on-enter "cli-shell-api showCfg " +
-				"--show-active-only " +
-				"--show-hide-secrets";
+				"--show-active-only";
 
 			opd:command path {
 				opd:repeatable true;
@@ -83,7 +87,6 @@ module vyatta-op-config-v1 {
 					opd:allowed "allowed-nodes ${@:4}";
 					opd:on-enter "cli-shell-api showCfg " +
 						"--path --show-active-only " +
-						"--show-hide-secrets " +
 						"${@:4} ";
 				}
 			}
@@ -93,8 +96,7 @@ module vyatta-op-config-v1 {
 					"(including default values)";
 				opd:on-enter "cli-shell-api showCfg " +
 					"--show-show-defaults " +
-					"--show-active-only " +
-					"--show-hide-secrets";
+					"--show-active-only";
 
 				opd:command path {
 					opd:repeatable true;
@@ -108,7 +110,6 @@ module vyatta-op-config-v1 {
 						opd:on-enter "cli-shell-api showCfg " +
 							"--show-show-defaults " +
 							"--path --show-active-only " +
-							"--show-hide-secrets " +
 							"${@:5} ";
 					}
 				}

@@ -1,3 +1,9 @@
+vyatta-cfg (1.24) unstable; urgency=medium
+
+  * DANOS Import Master
+
+ -- Vyatta Package Maintainers <DL-vyatta-help@att.com>  Fri, 15 Nov 2019 11:42:12 +0000
+
 vyatta-cfg (1.23.1.1) unstable; urgency=medium
 
   * DANOS Import

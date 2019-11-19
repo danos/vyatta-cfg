@@ -6,6 +6,7 @@
 # All rights reserved.
 #
 # SPDX-License-Identifier: LGPL-2.1-only
+
 package MY;
 
 use 5.010000;

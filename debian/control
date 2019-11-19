@@ -46,7 +46,6 @@ Depends:
  sysstat,
  vcli,
  vyatta-config-shell,
- vyatta-dataplane-cfg-arp-0,
  vyatta-interfaces (>= 1.48),
  vyatta-op-config-v1-yang,
  ${misc:Depends},
