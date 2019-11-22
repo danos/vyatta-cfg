@@ -52,5 +52,13 @@ vyatta_cfg_run ()
 ### Initalize top level command alias and completion functions
 _vyatta_cfg_init ()
 {
+    # Override shopt to ensure the output it returns, when called with -po,
+    # will result in the builtin set being called, rather than our alias.
+    # The output from all calls to shopt is passed to sed although we are
+    # only interested in the output when -po is used.
+    shopt() {
+        builtin shopt "$@" | sed -Ee 's/^set ([-+])/builtin set \1/'
+    }
+
     eval "$(cfgcli --action init)"
 }
