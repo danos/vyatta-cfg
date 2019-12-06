@@ -85,6 +85,7 @@ Package: vyatta-config-shell
 Architecture: all
 Depends:
  bash (>= 5~) | vyatta-bash (>= 1:4.4-1vyatta12),
+ bash-completion,
  config-utils,
  ${misc:Depends}
 Recommends: configd
