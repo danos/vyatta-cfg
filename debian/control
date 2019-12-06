@@ -76,15 +76,17 @@ Depends:
  config-utils,
  vyatta-config-shell,
  vyatta-op-shell,
- ${misc:Depends},
+ ${misc:Depends}
 Description: Scriptable vyatta like shell environment.
  This package provides a wrapper that allows writing shell scripts with
  Vyatta commands in them.
 
 Package: vyatta-config-shell
 Architecture: all
-Depends: bash (>= 5~) | vyatta-bash (>= 1:4.4-1vyatta12), config-utils,
- ${misc:Depends},
+Depends:
+ bash (>= 5~) | vyatta-bash (>= 1:4.4-1vyatta12),
+ config-utils,
+ ${misc:Depends}
 Recommends: configd
 Description: Configuration mode CLI
  This package provides the CLI for the configuration mode shell
@@ -160,7 +162,7 @@ Description: vyatta-interfaces-v1 module
 
 Package: vyatta-policy-v1-yang
 Architecture: all
-Depends: vyatta-cfg (>= ${source:Version}), ${yang:Depends}, ${misc:Depends},
+Depends: vyatta-cfg (>= ${source:Version}), ${misc:Depends}, ${yang:Depends}
 Description: vyatta-policy-v1 module
  The YANG module for vyatta-policy-v1
 
@@ -218,7 +220,11 @@ Description: vyatta-types-v1 module
 
 Package: vyatta-op-config-v1-yang
 Architecture: all
-Depends: cli-shell-api, vyatta-config-shell, yang-utils, ${yang:Depends},
+Depends:
+ cli-shell-api,
+ vyatta-config-shell,
+ yang-utils,
  ${misc:Depends},
+ ${yang:Depends}
 Description: Yang module for operational configure command
  The YANG module for vyatta's configure command

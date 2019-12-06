@@ -1,2 +1,2 @@
-yang/vyatta-security-v1.yang usr/share/configd/yang
 opt/vyatta/sbin/validate-security.pl
+yang/vyatta-security-v1.yang usr/share/configd/yang
