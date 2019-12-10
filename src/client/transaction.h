@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+ * Copyright (c) 2019-2020, AT&T Intellectual Property. All rights reserved.
  *
   Copyright (c) 2013-2016 by Brocade Communications Systems, Inc.
 
@@ -76,6 +76,19 @@ char *configd_comment(struct configd_conn *, const char *, struct configd_error 
  */
 char *configd_commit(struct configd_conn *, const char *, struct configd_error *);
 
+/**
+ * configd_confirmed_commit preforms the commit operation on the candidate database. On error
+ * the pointer it returns is set to NULL and if the configd_error struct is non NULL
+ * the error is populated.
+ */
+char *configd_confirmed_commit(struct configd_conn *, const char *, int, const char *, const char *, const char *, struct configd_error *);
+
+/**
+ * configd_cancel_commit reverts a pending confirmed commit operation. On error
+ * the pointer it returns is set to NULL and if the configd_error struct is non NULL
+ * the error is populated.
+ */
+char *configd_cancel_commit(struct configd_conn *, const char *, const char *, struct configd_error *);
 
 /**
  * configd_discard destroys all pending changes in the candidate database. On error

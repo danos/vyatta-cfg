@@ -1,4 +1,4 @@
-/* Copyright (c) 2019, AT&T Intellectual Property Inc. All rights reserved. */
+/* Copyright (c) 2019-2020, AT&T Intellectual Property Inc. All rights reserved. */
 /*
    Copyright (c) 2013-2016 by Brocade Communications Systems, Inc.
    All rights reserved.
@@ -234,6 +234,41 @@ char *configd_commit(struct configd_conn *conn, const char *comment, struct conf
 	req.args = json_pack("[ssb]", conn->session_id, comment, 0);
 	if (!req.args)
 		return NULL;
+
+	error_init(error, __func__);
+	result = get_str(conn, &req, error);
+	return result;
+}
+
+char *configd_confirmed_commit(struct configd_conn *conn,
+			       const char *comment,
+			       int confirmed,
+			       const char *timeout, 
+			       const char *persist, 
+			       const char *persistid, 
+			       struct configd_error *error)
+{
+	char *result;
+	struct request req = { .fn = "ConfirmedCommit" };
+
+	req.args = json_pack("[ssbsssb]", conn->session_id, comment, confirmed, timeout, persist, persistid, 0);
+	if (!req.args)
+		return NULL;
+
+	error_init(error, __func__);
+	result = get_str(conn, &req, error);
+	return result;
+}
+
+char *configd_cancel_commit(struct configd_conn *conn, const char *comment, const char *persistid, struct configd_error *error)
+{
+	char *result;
+	struct request req = { .fn = "CancelCommit" };
+
+	req.args = json_pack("[sssbb]", conn->session_id, comment, persistid, 0, 0);
+	if (!req.args) {
+		return NULL;
+	}
 
 	error_init(error, __func__);
 	result = get_str(conn, &req, error);
