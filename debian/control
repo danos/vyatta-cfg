@@ -229,3 +229,14 @@ Depends:
  ${yang:Depends}
 Description: Yang module for operational configure command
  The YANG module for vyatta's configure command
+
+Package: vyatta-op-show-confirmed-commit-v1-yang
+Architecture: all
+Depends:
+ cli-shell-api,
+ vyatta-config-shell,
+ yang-utils,
+ ${misc:Depends},
+ ${yang:Depends}
+Description: Yang module for operational system confirmed-commit command
+ The YANG module for vyatta's show system confirmed-commit command
