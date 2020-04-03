@@ -1,3 +1,21 @@
+vyatta-cfg (1.25) unstable; urgency=medium
+
+  [ Daniel Gollub ]
+  * perl_dmod: update module author
+
+  [ Duncan Eastoe ]
+  * Override `shopt` to ensure `set` builtin is used
+
+  [ William Ivory ]
+  * Run wrap-and-sort -s
+  * Add bash-completion dependency for vyatta-config-shell (Closes: VRVDR-49221)
+
+  [ Paul Carson ]
+  * Support Netconf confirmed commit (Closes: VRVDR-32867)
+  * Add show system confirmed-commit command (Fixes: VRVDR-49960)
+
+ -- William Ivory <william.ivory@intl.att.com>  Fri, 03 Apr 2020 11:46:50 +0100
+
 vyatta-cfg (1.24) unstable; urgency=medium
 
   * DANOS Import Master
