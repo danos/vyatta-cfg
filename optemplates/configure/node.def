@@ -1,4 +1,4 @@
 privileged: false
 help: Enter configure mode
 local: true
-run: /opt/vyatta/bin/configure
+run: history -a; /opt/vyatta/bin/configure
