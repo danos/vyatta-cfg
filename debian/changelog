@@ -1,3 +1,10 @@
+vyatta-cfg (1.25.1) unstable; urgency=medium
+
+  [ Duncan Eastoe ]
+  * Write shell history before entering config mode
+
+ -- William Ivory <william.ivory@intl.att.com>  Thu, 23 Apr 2020 16:10:30 +0100
+
 vyatta-cfg (1.25) unstable; urgency=medium
 
   [ Daniel Gollub ]
