@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+ * Copyright (c) 2019-2020, AT&T Intellectual Property. All rights reserved.
  *
    Copyright (c) 2013-2014 by Brocade Communications Systems, Inc.
    All rights reserved.
@@ -42,7 +42,8 @@ typedef enum {
 	STATUS,
 	VECTOR,
 	MAP,
-	ERROR
+	ERROR,
+	MGMTERROR
 } RespT;
 
 typedef enum {

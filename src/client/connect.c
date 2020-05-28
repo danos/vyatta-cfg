@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2018-2019, AT&T Intellectual Property. All rights reserved.
+   Copyright (c) 2018-2020, AT&T Intellectual Property. All rights reserved.
    Copyright (c) 2013-2014 by Brocade Communications Systems, Inc.
    All rights reserved.
  *
@@ -24,6 +24,9 @@
 #include "error.h"
 #include "internal.h"
 
+#define ENFORCE_STRING_ENTRIES 1
+#define IGNORE_NON_STRING_ENTRIES 0
+
 #define DEFAULT_CONFIG_SOCKET "/var/run/vyatta/configd/main.sock"
 
 #define DEBUG 1
@@ -42,11 +45,31 @@ static void msg_json(const json_t *jobj, const char *pfx)
 #define msg_json(...)
 #endif
 
-
+// response_free() would typically only be called on error, as otherwise the
+// allocated resource (string, map or vector) is passed to the caller of the
+// relevant get_str/map/vector() function.  However, if called, it should
+// clean up properly.
 void response_free(struct response *resp)
 {
-	if ((resp->type != INT) && (resp->type != STATUS))
-		free(resp->result.str_val);
+	switch (resp->type) {
+		case INT:
+			break;
+		case STRING:
+			free(resp->result.str_val);
+			break;
+		case VECTOR:
+			vector_free(resp->result.v);
+			break;
+		case MAP:
+			map_free(resp->result.m);
+			break;
+		case ERROR:
+			free(resp->result.str_val);
+			break;
+		case MGMTERROR:
+			mgmt_err_list_free(&resp->result.mgmt_errs);
+			break;
+	}
 }
 
 
@@ -205,7 +228,67 @@ done:
 	return v;
 }
 
-static struct map *jobj_to_map(json_t *jobj)
+// Take a JSON array object that is presumed to be a list of single entry
+// maps and return a single map containing all the single entries.
+// Assumption is that there will not be duplicate keys in source JSON.
+static struct map *jarray_to_map(json_t *jobj)
+{
+	struct map *m = NULL;
+	int local_errno = 0;
+	size_t arr_len, i;
+	size_t argz_len = 0;
+	char *argz = NULL;
+
+	arr_len = json_array_size(jobj);
+	if (argz_create_sep("", 0, &argz, &argz_len)) {
+		errno = ENOMEM;
+		return NULL;
+	}
+
+	for (i = 0; i < arr_len; ++i) {
+		json_t *jval, *jmap;
+		const char *key;
+
+		jmap = json_array_get(jobj, i);
+		if (!jmap) {
+			local_errno = EINVAL;
+			goto error;
+		}
+
+		json_object_foreach(jmap, key, jval) {
+			const char *vstr;
+
+			vstr = json_string_value(jval);
+			if (!vstr) {
+				local_errno = EINVAL;
+				goto error;
+			}
+
+			if (envz_add(&argz, &argz_len, key, vstr)) {
+				local_errno = ENOMEM;
+				goto error;
+			}
+		}
+	}
+
+	m = map_new(argz, argz_len);
+	if (!m) {
+		local_errno = ENOMEM;
+		goto error;
+	}
+	goto done;
+
+error:
+	free(argz);
+done:
+	errno = local_errno;
+	return m;
+}
+
+// In some cases we expect all elements to be strings, but in others the type
+// may vary.  Use 'only_allow_strings' to determine if a non-string element
+// should be treated as an error or not.
+static struct map *jobj_to_map(json_t *jobj, int only_allow_strings)
 {
 	int local_errno = 0;
 	struct map *m = NULL;
@@ -225,10 +308,12 @@ static struct map *jobj_to_map(json_t *jobj)
 
 		vstr = json_string_value(jval);
 		if (!vstr) {
-			local_errno = EINVAL;
-			goto error;
+			if (only_allow_strings) {
+				local_errno = EINVAL;
+				goto error;
+			}
+			continue;
 		}
-
 		if (envz_add(&argz, &argz_len, key, vstr)) {
 			local_errno = errno;
 			goto error;
@@ -247,6 +332,209 @@ error:
 done:
 	errno = local_errno;
 	return m;
+}
+
+// jobj_is_null() - return true if jobj is null or if jobj is valid but contains
+// the 'null' value (ie json_is_null() returned 'true')
+//
+// Note json_is_null() returns false if object passed is itself null so be warned.
+static int jobj_is_null(json_t *jobj) {
+	return ((jobj == NULL) || json_is_null(jobj));
+}
+
+// jobj_is_not_null() - return true if jobj contains a valid, non-null JSON
+// object.
+static int jobj_is_not_null(json_t *jobj) {
+	return (!jobj_is_null(jobj));
+}
+
+// contains_non_null_entry_for() - return true (!0) if jobj exists and
+// contains a non-null entry for the given key.
+static int contains_non_null_entry_for(json_t *jobj, const char *key) {
+	return jobj_is_not_null(json_object_get(jobj, key));
+}
+
+// Extract the contents, if any, of the <error-info> section of a mgmt_error
+// into a map.
+//
+// Example JSON format for error-info:
+//
+//       "error-info" : [
+//          {
+//             "bad-element" : "logan"
+//          },
+//          {
+//             "bad-attribute" : "just testing"
+//          }
+//       ],
+
+static int extract_mgmt_error_info_as_map(
+	json_t *jobj,
+	struct map **info)
+{
+	json_t *jinfo = NULL;
+
+	*info = NULL;
+
+	// If we have no error-info, that's ok.
+	jinfo = json_object_get(jobj, "error-info");
+	if (jobj_is_null(jinfo)) {
+		return 0;
+	}
+
+	*info = jarray_to_map(jinfo);
+
+	return (*info) ? 0 : -1;
+}
+
+// Return 0 on success, -1 for failure.  Frees any allocated resources for all
+// extracted errors on failure.
+static int process_errlist_array(
+	struct configd_mgmt_err_list *errlist,
+	json_t *jarray,
+	int arr_len)
+{
+	struct map *fields = NULL;
+	int retval = 0;
+	int i = 0;
+
+	errlist->me_list = calloc(arr_len, sizeof(struct configd_mgmt_error *));
+	if (errlist->me_list == NULL) {
+		msg_err("Unable to allocate memory for error list\n");
+		return -1;
+	}
+
+	for (i = 0; i < arr_len; i++) {
+		json_t *jmap;
+		struct map *info = NULL;
+
+		jmap = json_array_get(jarray, i);
+		if (!json_is_object(jmap)) {
+			msg_err("Unexpected JSON data type for configd mgmt-error\n");
+			goto error;
+		}
+
+		// Get fields, info
+		fields = jobj_to_map(jmap, IGNORE_NON_STRING_ENTRIES);
+		if (!fields) {
+			msg_err("Unable to extract configd mgmt-error response\n");
+			goto error;
+		}
+
+		retval = extract_mgmt_error_info_as_map(jmap, &info);
+		if (retval != 0) {
+			msg_err("Unable to extract configd mgmt-error info element(s).");
+			goto error;
+		}
+
+		errlist->me_list[i] = calloc(1, sizeof(struct configd_mgmt_error));
+		if (errlist->me_list[i] == NULL) {
+			msg_err("Unable to allocate memory for mgmt-error\n");
+			goto error;
+		}
+		errlist->num_entries++;
+
+		retval = configd_mgmt_error_set_from_maps(
+			errlist->me_list[i], fields, &info);
+		map_free(fields);
+		fields = NULL;
+		if (retval != 0) {
+			msg_err("Unable to set error from data");
+			goto error;
+		}
+	}
+
+	return 0;
+
+error:
+	if (fields != NULL) {
+		map_free(fields);
+	}
+	for (i = 0; i < errlist->num_entries; i ++) {
+		configd_mgmt_error_free(errlist->me_list[i]);
+		free(errlist->me_list[i]);
+	}
+	free(errlist->me_list);
+	errlist->me_list = NULL;
+	errlist->num_entries = 0;
+
+	return -1;
+}
+
+static int extract_mgmt_error_list(json_t *jobj, struct response *resp) {
+	json_t *jarray = NULL;
+	int arr_len = 0;
+	int retval = 0;
+
+	resp->type = MGMTERROR;
+
+	if (!json_is_object(jobj)) {
+		msg_err("configd mgmt-error-list response must be a map\n");
+		return -1;
+	}
+	jarray = json_object_get(jobj, "error-list");
+	if (!json_is_array(jarray)) {
+		msg_err("configd 'mgmterrorlist' doesn't contain 'error-list'\n");
+		return -1;
+	}
+
+	arr_len = json_array_size(jarray);
+	if (arr_len == 0) {
+		msg_err("configd error-list is empty\n");
+		return -1;
+	}
+
+	// Need to create list of configd_mgmt_error objects from JSON array.
+	struct configd_mgmt_err_list errlist = { .num_entries=0, .me_list=NULL };
+	retval = process_errlist_array(&errlist, jarray, arr_len);
+
+	resp->result.mgmt_errs.num_entries = errlist.num_entries;
+	resp->result.mgmt_errs.me_list = errlist.me_list;
+
+	return retval;
+}
+
+static int extract_result(json_t *jresult, struct response *resp) {
+	int retval = 0;
+
+	int resp_type = json_typeof(jresult);
+	switch (resp_type) {
+		case JSON_TRUE:
+			resp->type = INT;
+			resp->result.int_val = 1;
+			break;
+		case JSON_FALSE:
+			resp->type = INT;
+			resp->result.int_val = 0;
+			break;
+		case JSON_INTEGER:
+			resp->type = INT;
+			resp->result.int_val = json_integer_value(jresult);
+			break;
+		case JSON_STRING:
+			resp->type = STRING;
+			resp->result.str_val = local_strdup(json_string_value(jresult));
+			break;
+		case JSON_ARRAY:
+			resp->type = VECTOR;
+			resp->result.v = jarray_to_vector(jresult);
+			if (!resp->result.v) {
+				retval = -1;
+			}
+			break;
+		case JSON_OBJECT:
+			resp->type = MAP;
+			resp->result.m = jobj_to_map(jresult, ENFORCE_STRING_ENTRIES);
+			if (!resp->result.m) {
+				retval = -1;
+			}
+			break;
+		default:
+			msg_err("Unhandled configd result type %d\n", resp_type);
+			break;
+	}
+
+	return retval;
 }
 
 int recv_response(struct configd_conn *conn, struct response *resp)
@@ -273,51 +561,30 @@ int recv_response(struct configd_conn *conn, struct response *resp)
 
 	msg_json(jresp, __func__); /* debugging */
 
-	/* The result object may be null. If so, it is an error result. */
-	jresult = json_object_get(jresp, "result");
-	if (!json_is_null(jresult)) {
-		int resp_type = json_typeof(jresult);
-		switch (resp_type) {
-			case JSON_TRUE:
-				resp->type = INT;
-				resp->result.int_val = 1;
-				break;
-			case JSON_FALSE:
-				resp->type = INT;
-				resp->result.int_val = 0;
-				break;
-			case JSON_INTEGER:
-				resp->type = INT;
-				resp->result.int_val = json_integer_value(jresult);
-				break;
-			case JSON_STRING:
-				resp->type = STRING;
-				resp->result.str_val = strdup(json_string_value(jresult));
-				break;
-			case JSON_ARRAY:
-				resp->type = VECTOR;
-				resp->result.v = jarray_to_vector(jresult);
-				if (!resp->result.v)
-					goto done;
-				break;
-			case JSON_OBJECT:
-				resp->type = MAP;
-				resp->result.m = jobj_to_map(jresult);
-				if (!resp->result.m)
-					goto done;
-				break;
-			default:
-				msg_err("Unhandled configd result type %d\n", resp_type);
-				break;
+	if (contains_non_null_entry_for(jresp, "result")) {
+		jresult = json_object_get(jresp, "result");
+		ret = extract_result(jresult, resp);
+		if (ret != 0) {
+			goto done;
 		}
-	} else {
+	} else if (contains_non_null_entry_for(jresp, "error")) {
 		resp->type = ERROR;
 		jobj = json_object_get(jresp, "error");
 		if (!json_is_string(jobj)) {
 			msg_err("configd error response must be a string\n");
 			goto done;
 		}
-		resp->result.str_val = strdup(json_string_value(jobj));
+		resp->result.str_val = local_strdup(json_string_value(jobj));
+	} else if (contains_non_null_entry_for(jresp, "mgmterrorlist")) {
+		// This field should always be present, but will be an empty list if
+		// we got a valid result, or a 'basic' error above.  This means it
+		// should be checked last in this if else clause.
+		jobj = json_object_get(jresp, "mgmterrorlist");
+		ret = extract_mgmt_error_list(jobj, resp);
+		if (ret != 0) {
+			msg_err("Unable to extract mgmt error.");
+			goto done;
+		}
 	}
 
 	jobj = json_object_get(jresp, "id");
@@ -330,6 +597,18 @@ int recv_response(struct configd_conn *conn, struct response *resp)
 done:
 	json_decref(jresp);
 	return ret;
+}
+
+// handle_rpc_error
+//
+// Handle returned error, which may be a simple string, or a map containing
+// relevant fields of a MgmtError object.
+static void handle_rpc_error(struct configd_error *error, struct response *resp)
+{
+	if (error) {
+		error_setf(error, "%s\n", resp->result.str_val);
+		return;
+	}
 }
 
 int get_int(struct configd_conn *conn, struct request *req, struct configd_error *error)
@@ -359,8 +638,10 @@ int get_int(struct configd_conn *conn, struct request *req, struct configd_error
 	case INT:
 		return resp.result.int_val;
 	case ERROR:
-		if (error)
-			error_setf(error, "%s\n", resp.result.str_val);
+		handle_rpc_error(error, &resp);
+		break;
+	case MGMTERROR:
+		error_set_from_mgmt_error_list(error, &resp.result.mgmt_errs, req->fn);
 		break;
 	default:
 		break;
@@ -398,9 +679,10 @@ char *get_str(struct configd_conn *conn, struct request *req, struct configd_err
 	case STRING:
 		return resp.result.str_val;
 	case ERROR:
-		if (!error)
-			msg_err("%s\n", resp.result.str_val);
-		error_setf(error, "%s\n", resp.result.str_val);
+		handle_rpc_error(error, &resp);
+		break;
+	case MGMTERROR:
+		error_set_from_mgmt_error_list(error, &resp.result.mgmt_errs, req->fn);
 		break;
 	default:
 		break;
@@ -438,9 +720,10 @@ struct vector *get_vector(struct configd_conn *conn, struct request *req, struct
 	case VECTOR:
 		return resp.result.v;
 	case ERROR:
-		if (!error)
-			msg_err("%s\n", resp.result.str_val);
-		error_setf(error, "%s\n", resp.result.str_val);
+		handle_rpc_error(error, &resp);
+		break;
+	case MGMTERROR:
+		error_set_from_mgmt_error_list(error, &resp.result.mgmt_errs, req->fn);
 		break;
 	default:
 		break;
@@ -478,9 +761,10 @@ struct map *get_map(struct configd_conn *conn, struct request *req, struct confi
 	case MAP:
 		return resp.result.m;
 	case ERROR:
-		if (!error)
-			msg_err("%s\n", resp.result.str_val);
-		error_setf(error, "%s\n", resp.result.str_val);
+		handle_rpc_error(error, &resp);
+		break;
+	case MGMTERROR:
+		error_set_from_mgmt_error_list(error, &resp.result.mgmt_errs, req->fn);
 		break;
 	default:
 		break;

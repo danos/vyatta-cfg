@@ -237,6 +237,7 @@ char *configd_commit(struct configd_conn *conn, const char *comment, struct conf
 
 	error_init(error, __func__);
 	result = get_str(conn, &req, error);
+	configd_error_format_for_commit_or_val(error, "Commit");
 	return result;
 }
 
@@ -257,6 +258,7 @@ char *configd_confirmed_commit(struct configd_conn *conn,
 
 	error_init(error, __func__);
 	result = get_str(conn, &req, error);
+	configd_error_format_for_commit_or_val(error, "ConfirmedCommit");
 	return result;
 }
 
@@ -371,6 +373,7 @@ char *configd_validate(struct configd_conn *conn, struct configd_error *error)
 
 	error_init(error, __func__);
 	result = get_str(conn, &req, error);
+	configd_error_format_for_commit_or_val(error, "Validate");
 	return result;
 }
 

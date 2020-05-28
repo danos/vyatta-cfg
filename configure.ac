@@ -64,9 +64,21 @@ PKG_CHECK_MODULES(python, [python], [],
 PKG_CHECK_MODULES(python3, [python3], [],
     [AC_MSG_ERROR(python3-dev is required for this program)])
 
+PKG_CHECK_MODULES(cpputest, [cpputest], [], [
+    dnl Fall back to classic searching. 3.1 on Wheezy doesn't supply .pc
+    AC_LANG_CPLUSPLUS
+    AC_CHECK_LIB([CppUTest], [main], [
+       have_cpputest=yes
+       cpputest_LIBS="-lstdc++ -lCppUTest -lCppUTestExt"
+       cpputest_CFLAGS=""],
+       [AC_MSG_ERROR(cpputest is required for this program)])
+    AC_LANG_C ]
+)
+
 AC_CONFIG_FILES(
 	[Makefile]
 	[perl_dmod/Makefile]
+	[cpputest/Makefile]
   [debian/vyatta-cfg.postinst])
 
 AC_SUBST(NOSTRIP)

@@ -15,6 +15,9 @@ config.guess
 config.status
 config.sub
 configure
+cpputest/*.log
+cpputest/*.trs
+cpputest/*_tester
 debian/files
 debian/tmp
 debian/tmpsrc

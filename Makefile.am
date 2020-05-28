@@ -1,4 +1,4 @@
-SUBDIRS = . perl_dmod
+SUBDIRS = . perl_dmod cpputest
 completiondir		= /etc/bash_completion.d
 logrotatedir		= /etc/logrotate.d
 defaultdir		= /etc/default
