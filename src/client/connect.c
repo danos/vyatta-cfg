@@ -81,12 +81,14 @@ int configd_open_connection(struct configd_conn *conn)
 	len = SUN_LEN(&configd);
 	if (connect(conn->fd, (struct sockaddr *)&configd, len) == -1) {
 		local_errno = errno;
+		close(conn->fd);
 		goto error;
 	}
 
 	conn->fp = fdopen(conn->fd, "r+");
 	if (!conn->fp) {
 		local_errno = errno;
+		close(conn->fd);
 		msg_err("Unable to open socket stream to configd\n");
 		goto error;
 	}
@@ -103,8 +105,9 @@ void configd_close_connection(struct configd_conn *conn)
 {
 	if (conn->fp)
 		fclose(conn->fp);
-	if (conn->fd != -1)
-		close(conn->fd);
+
+	/* don't close conn->fd - fclose will have done it */
+
 	free(conn->session_id);
 }
 
