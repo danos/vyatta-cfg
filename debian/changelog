@@ -1,3 +1,10 @@
+vyatta-cfg (1.24.2) unstable; urgency=medium
+
+  [ Robert Shearman ]
+  * connect: fix double close of fd (Fixes: VRVDR-51455)
+
+ -- William Ivory <william.ivory@intl.att.com>  Fri, 19 Jun 2020 12:20:12 +0100
+
 vyatta-cfg (1.24.1) unstable; urgency=medium
 
   [ Duncan Eastoe ]
