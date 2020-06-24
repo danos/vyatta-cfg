@@ -4,7 +4,7 @@
 #
 # **** License ****
 #
-# Copyright (c) 2018-2019, AT&T Intellectual Property.
+# Copyright (c) 2018-2020, AT&T Intellectual Property.
 # All Rights Reserved.
 #
 # Copyright (c) 2014-2017 by Brocade Communications Systems, Inc.
@@ -21,6 +21,7 @@
 
 use lib "/opt/vyatta/share/perl5/";
 
+use Vyatta::Configd;
 use Vyatta::Interface;
 use Vyatta::Misc;
 use Vyatta::InterfaceStats;
@@ -60,6 +61,13 @@ sub get_stats {
         my $interface = new Vyatta::Interface($intf);
         next unless $interface;
         next unless $interface->exists();
+
+        if ($intf eq "erspan0") {
+           my $client = Vyatta::Configd::Client->new();
+           my $exists = $client->node_exists($Vyatta::Configd::Client::AUTO, $interface->{path});
+
+           next unless $exists;
+        }
 
         my %ifstats = ();
         $ifstats{'name'} = $intf;
