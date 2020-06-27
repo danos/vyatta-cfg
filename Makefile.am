@@ -22,8 +22,7 @@ function_DATA	= functions/script-wrapper
 interpdir	= $(functiondir)/interpreter/
 interp_DATA	= functions/interpreter/vyatta-cfg-run
 
-yang_DATA = yang/vyatta-interfaces-v1.yang
-yang_DATA += yang/vyatta-security-v1.yang
+yang_DATA = yang/vyatta-security-v1.yang
 yang_DATA += yang/vyatta-system-v1.yang
 yang_DATA += yang/vyatta-policy-v1.yang
 yang_DATA += yang/vyatta-resources-v1.yang
@@ -43,10 +42,7 @@ src/cli_val.c: src/cli_val.l
 	flex --prefix=yy_cli_val_ -o $@ $<
 
 bin_SCRIPTS = scripts/vcli
-bin_SCRIPTS += scripts/yang-getop-interface
 bin_SCRIPTS += scripts/vyatta-rpc-reboot
-bin_SCRIPTS += scripts/ifstats-op-mode
-bin_SCRIPTS += scripts/set-rpf-check
 bin_SCRIPTS += scripts/configure
 bin_SCRIPTS += scripts/list-configuration-files
 

@@ -46,7 +46,6 @@ Depends:
  sysstat,
  vcli,
  vyatta-config-shell,
- vyatta-interfaces (>= 1.48),
  vyatta-op-config-v1-yang,
  ${misc:Depends},
  ${perl:Depends},
@@ -152,14 +151,6 @@ Replaces: vyatta-cfg (<< 1.20)
 Depends: ${misc:Depends}, ${yang:Depends}
 Description: vyatta-dscp-v1 module
  The YANG module for vyatta-dscp-v1
-
-Package: vyatta-interfaces-v1-yang
-Architecture: all
-Conflicts: vyatta-cfg (<< 1.20)
-Replaces: vyatta-cfg (<< 1.20)
-Depends: ${misc:Depends}, ${yang:Depends}
-Description: vyatta-interfaces-v1 module
- The YANG module for vyatta-interfaces-v1
 
 Package: vyatta-policy-v1-yang
 Architecture: all
