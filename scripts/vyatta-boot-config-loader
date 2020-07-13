@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2019-2020, AT&T Intellectual Property. All rights reserved.
 #
 # Copyright (c) 2010-2011, 2015-2016 by Brocade Communications Systems, Inc.
 # All rights reserved.
@@ -10,68 +10,52 @@ BOOT_FILE=$1
 shift
 
 CAPI=/bin/cli-shell-api
-CLOG=/var/log/vyatta/vyatta-config-loader.log
-COMMIT_LOG=/var/log/vyatta/vyatta-commit.log
-
-do_log () {
-  local level=$1
-  shift
-  logger -t 'boot-config-loader' -p "local0.$level" -- "$*"
-}
 
 do_commit () {
-  cmd=$(cfgcli -print commit "$@") && eval "$cmd" >>$COMMIT_LOG
-}
-
-trace () {
-  echo "$(date +'%F %T')  $*"
+  cfgcli commit "$@"
 }
 
 umask 0002
 
 (
-  trace '== begin boot-config-loader'
+  echo 'begin boot-config-loader'
   # set up config session
   SID=$$
   SENV=$($CAPI getSessionEnv $SID)
   eval "$SENV"
   if ! $CAPI setupSession; then
-    do_log err 'Cannot set up configuration session.'
-    trace 'Cannot set up configuration session.'
+    echo 'Cannot set up configuration session.' 1>&2
     exit 1
   fi
 
   # do load
-  trace '-- begin load'
+  echo 'begin load'
   if ! $CAPI loadFile "$BOOT_FILE"; then
-    do_log warn "Failure(s) encountered during load. See $CLOG for details."
-    trace '-- load finished with failure(s)'
+    echo 'load finished with failure(s)' 1>&2
   else
-    trace '-- load finished successfully'
+    echo 'load finished successfully'
   fi
 
   # do commit
-  trace '-- begin commit'
+  echo 'begin commit'
   ret=0
   export COMMIT_VIA=boot-config-loader
   if ! do_commit ; then
-    do_log err 'Commit failed at boot.'
-    trace '-- commit failed'
+    echo 'commit failed' 1>&2
     ret=1
   else
-    trace '-- commit succeeded'
+    echo 'commit succeeded'
   fi
 
   # clean up
   if ! $CAPI teardownSession; then
-    do_log warn 'Failed to tear down configuration session.'
-    trace '-- teardown failed'
+    echo 'teardown failed' 1>&2
   else
-    trace '-- teardown succeeded'
+    echo 'teardown succeeded'
   fi
-  trace '-- exiting'
+  echo 'end boot-config-loader'
   exit $ret
-) </dev/null >>$CLOG 2>&1
+) </dev/null
 
 exit $?
 
