@@ -1,3 +1,20 @@
+vyatta-cfg (1.26) unstable; urgency=medium
+
+  [ Duncan Eastoe ]
+  * Write shell history before entering config mode
+
+  [ Robert Shearman ]
+  * connect: fix double close of fd (Fixes: VRVDR-51455)
+
+  [ Charles (Chas) Williams ]
+  * ifstats: Don't display unconfigured tunnel default (Bugfix: VRVDR-43463)
+  * Move vyatta-interfaces-v1.yang to vyatta-interfaces (Bugfix: VRVDR-51933)
+
+  [ John Southworth ]
+  * Log boot config loader messages to the journal
+
+ -- William Ivory <william.ivory@intl.att.com>  Wed, 22 Jul 2020 11:47:49 +0100
+
 vyatta-cfg (1.25) unstable; urgency=medium
 
   [ Daniel Gollub ]
