@@ -104,7 +104,10 @@ Description: vyatta-cfg back-end library
 Package: libvyatta-cfg-dev
 Architecture: any
 Section: contrib/libdevel
-Depends: libvyatta-cfg1 (=${binary:Version}), ${misc:Depends}
+Depends:
+ libvyatta-cfg1 (=${binary:Version}),
+ libvyatta-util-dev (>=0.14),
+ ${misc:Depends}
 Description: libvyatta-cfg development package
  Development header and library files for the Vyatta configuration back-end
  library.
