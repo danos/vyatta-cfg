@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2018-2019 AT&T Intellectual Property.
+# Copyright (c) 2018-2020 AT&T Intellectual Property.
 # All rights reserved.
 # Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
 # All rights reserved.
@@ -151,6 +151,24 @@ function commit ()
 	cmd_helper "${FUNCNAME[0]}" "$@"
 }
 export -f commit
+
+function commit-confirm ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f commit-confirm
+
+function confirm ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f confirm
+
+function rollback ()
+{
+	cmd_helper "${FUNCNAME[0]}" "$@"
+}
+export -f rollback
 
 function validate ()
 {
