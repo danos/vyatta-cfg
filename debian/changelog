@@ -1,3 +1,9 @@
+vyatta-cfg (1.24.3) unstable; urgency=medium
+
+  * VCLI support of rollback and commit-confirm (Closes: VRVDR-53014)
+
+ -- Paul Carson <paul.carson@intl.att.com>  Fri, 25 Sep 2020 11:04:17 +0100
+
 vyatta-cfg (1.24.2) unstable; urgency=medium
 
   [ Robert Shearman ]
