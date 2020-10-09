@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+ * Copyright (c) 2019-2020, AT&T Intellectual Property. All rights reserved.
  *
    Copyright (c) 2013-2014 by Brocade Communications Systems, Inc.
    All rights reserved.
@@ -36,10 +36,12 @@ int configd_sess_exists(struct configd_conn *conn, struct configd_error *error)
 	return result;
 }
 
-int configd_sess_setup(struct configd_conn *conn, struct configd_error *error)
+static int _configd_sess_setup(struct configd_conn *conn,
+							   struct configd_error *error,
+							   const char *fn)
 {
 	int result;
-	struct request req = { .fn = "SessionSetup" };
+	struct request req = { .fn = fn };
 
 	req.args = json_pack("[s]", conn->session_id);
 	if (!req.args)
@@ -48,6 +50,16 @@ int configd_sess_setup(struct configd_conn *conn, struct configd_error *error)
 	error_init(error, __func__);
 	result = get_int(conn, &req, error);
 	return result != -1 ? !result : -1;
+}
+
+int configd_sess_setup(struct configd_conn *conn, struct configd_error *error)
+{
+	return _configd_sess_setup(conn, error, "SessionSetup");
+}
+
+int configd_sess_setup_shared(struct configd_conn *conn, struct configd_error *error)
+{
+	return _configd_sess_setup(conn, error, "SessionSetupShared");
 }
 
 int configd_sess_teardown(struct configd_conn *conn, struct configd_error *error)

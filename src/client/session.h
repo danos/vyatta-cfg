@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+ * Copyright (c) 2019-2020, AT&T Intellectual Property. All rights reserved.
  *
   Copyright (c) 2013-2014 by Brocade Communications Systems, Inc.
 
@@ -28,10 +28,19 @@ int configd_sess_exists(struct configd_conn *, struct configd_error *);
 
 /**
  * configd_sess_setup creates a new configuration session and corresponding
+ * candidate database owned by the requesting user.
+ * The return values are 0:success, -1:error. On error if the error struct
+ * pointer is non NULL then the error will be populated.
+ */
+int configd_sess_setup(struct configd_conn *, struct configd_error *);
+
+
+/**
+ * configd_sess_setup creates a new shared configuration session and corresponding
  * candidate database. The return values are 0:success, -1:error. On error
  * if the error struct pointer is non NULL then the error will be populated.
  */
-int configd_sess_setup(struct configd_conn *, struct configd_error *);
+int configd_sess_setup_shared(struct configd_conn *, struct configd_error *);
 
 
 /**
