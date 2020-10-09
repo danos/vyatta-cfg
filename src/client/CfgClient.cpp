@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, AT&T Intellectual Property Inc. All rights reserved.
+ * Copyright (c) 2018-2020, AT&T Intellectual Property Inc. All rights reserved.
  * Copyright (c) 2015-2016 by Brocade Communications Systems, Inc.
  * All rights reserved.
  *
@@ -345,6 +345,16 @@ void CfgClient::SessionSetup(const std::string &sessid) throw(CfgClientException
 	}
 	configd_set_session_id(_conn, sessid.c_str());
 	callintapi(_conn, configd_sess_setup);
+	_sessionid = sessid;
+}
+
+void CfgClient::SessionSetupShared(const std::string &sessid) throw(CfgClientException)
+{
+	if (sessid.length() == 0) {
+		throw(CfgClientException("must specify a session identifier"));
+	}
+	configd_set_session_id(_conn, sessid.c_str());
+	callintapi(_conn, configd_sess_setup_shared);
 	_sessionid = sessid;
 }
 

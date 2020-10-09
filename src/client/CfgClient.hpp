@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, AT&T Intellectual Property Inc. All rights reserved.
+ * Copyright (c) 2018-2020, AT&T Intellectual Property Inc. All rights reserved.
  * Copyright (c) 2015 by Brocade Communications Systems, Inc.
  * All rights reserved.
  *
@@ -83,12 +83,19 @@ public:
 	 */
 	void SessionAttach(const std::string &sessid) throw(CfgClientException);
 	/**
-	 * SessionSetup() creates a new configuration session and makes that session
-	 * the context for this instance object.
-	 * Commonly the pid of the process is used as the session id, but this 
+	 * SessionSetup() creates a new configuration session owned by the requesting
+	 * user and makes that session the context for this instance object.
+	 * Commonly the pid of the process is used as the session id, but this
 	 * may be any arbitrary string.
 	 */
 	void SessionSetup(const std::string &sessid) throw(CfgClientException);
+	/**
+	 * SessionSetupShared() creates a new shared configuration session and
+	 * makes that session the context for this instance object.
+	 * Commonly the pid of the process is used as the session id, but this
+	 * may be any arbitrary string.
+	 */
+	void SessionSetupShared(const std::string &sessid) throw(CfgClientException);
 	/**
 	 * SessionTeardown() destroys a configuration session.
 	 * Care should be taken that you really want to teardown the session,

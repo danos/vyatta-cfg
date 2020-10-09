@@ -57,7 +57,7 @@ vincludedir = $(includedir)/vyatta-cfg
 vinclude_HEADERS = src/cli_cstore.h
 
 lib_LTLIBRARIES			= src/libvyatta-config.la
-src_libvyatta_config_la_LDFLAGS	= -version-info 1:0:0
+src_libvyatta_config_la_LDFLAGS	= -version-info 2:0:0
 src_libvyatta_config_la_SOURCES	= src/client/connect.c
 src_libvyatta_config_la_SOURCES += src/client/session.c
 src_libvyatta_config_la_SOURCES += src/client/error.c
