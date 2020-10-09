@@ -59,7 +59,7 @@ Description: Vyatta configuration system
 Package: cli-shell-api
 Architecture: any
 Depends:
- libvyatta-cfg1 (>= ${binary:Version}),
+ libvyatta-config1 (>= ${binary:Version}),
  vyatta-curl-wrapper,
  ${misc:Depends},
  ${perl:Depends},
@@ -93,19 +93,39 @@ Recommends: configd
 Description: Configuration mode CLI
  This package provides the CLI for the configuration mode shell
 
-Package: libvyatta-cfg1
+Package: libvyatta-config1
 Architecture: any
+Breaks: libvyatta-cfg1 (<< 1.28)
+Replaces: libvyatta-cfg1 (<< 1.28)
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Recommends: configd (>= 1.24)
-Provides: libvyatta-config-perl
 Description: vyatta-cfg back-end library
- Vyatta configuration back-end library (libvyatta-cfg).
+ Vyatta configuration back-end library (libvyatta-config).
+
+Package: libvyatta-config-perl
+Architecture: any
+Breaks: libvyatta-cfg1 (<< 1.28)
+Replaces: libvyatta-cfg1 (<< 1.28)
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Recommends: configd (>= 1.24)
+Description: Legacy vyatta-cfg back-end library
+ Legacy Vyatta configuration back-end library.
+
+Package: libvyatta-cfg1
+Architecture: all
+Depends: libvyatta-config1, libvyatta-config-perl, ${misc:Depends}
+Recommends: configd (>= 1.24)
+Description: Temporary transition package
+ Temporary dependency package following package split into:
+   - libvyatta-config1
+   - libvyatta-config-perl
 
 Package: libvyatta-cfg-dev
 Architecture: any
 Section: contrib/libdevel
 Depends:
- libvyatta-cfg1 (=${binary:Version}),
+ libvyatta-config1 (=${binary:Version}),
+ libvyatta-config-perl (=${binary:Version}),
  libvyatta-util-dev (>=0.14),
  ${misc:Depends}
 Description: libvyatta-cfg development package
@@ -115,7 +135,9 @@ Description: libvyatta-cfg development package
 Package: libvyatta-cfg-dbg
 Architecture: any
 Section: contrib/debug
-Depends: libvyatta-cfg1 (=${binary:Version}), ${misc:Depends}
+Depends: libvyatta-config1 (=${binary:Version}),
+ libvyatta-config-perl (=${binary:Version}),
+ ${misc:Depends}
 Description: libvyatta-cfg debug symbols
  Debug symbols for the Vyatta configuration back-end
  library.
@@ -123,7 +145,7 @@ Description: libvyatta-cfg debug symbols
 Package: python-vyatta-cfgclient
 Section: contrib/python
 Architecture: any
-Depends: libvyatta-cfg1, ${misc:Depends}, ${python:Depends}, ${shlibs:Depends}
+Depends: libvyatta-config1, ${misc:Depends}, ${python:Depends}, ${shlibs:Depends}
 X-Python-Version: >= 2.7
 Description: Python bindings to Vyatta config client API
  Python wrapper for Vyatta configuration client API
@@ -131,7 +153,7 @@ Description: Python bindings to Vyatta config client API
 Package: python3-vyatta-cfgclient
 Section: contrib/python
 Architecture: any
-Depends: libvyatta-cfg1, ${misc:Depends}, ${python3:Depends}, ${shlibs:Depends}
+Depends: libvyatta-config1, ${misc:Depends}, ${python3:Depends}, ${shlibs:Depends}
 X-Python3-Version: >= 3.2
 Description: Python 3 bindings to Vyatta config client API
  Python 3 wrapper for Vyatta configuration client API
@@ -139,13 +161,13 @@ Description: Python 3 bindings to Vyatta config client API
 Package: libvyatta-cfgclient-perl
 Architecture: any
 Section: contrib/perl
-Depends: libvyatta-cfg1, ${misc:Depends}, ${perl:Depends}, ${shlibs:Depends}
+Depends: libvyatta-config1, ${misc:Depends}, ${perl:Depends}, ${shlibs:Depends}
 Description: Perl bindings to Vyatta config client API
  Perl wrapper for Vyatta configuration client API
 
 Package: ruby-vyatta-cfgclient
 Architecture: any
-Depends: libvyatta-cfg1, ${misc:Depends}, ${ruby:Depends}, ${shlibs:Depends}
+Depends: libvyatta-config1, ${misc:Depends}, ${ruby:Depends}, ${shlibs:Depends}
 Description: Ruby bindings to Vyatta config client API
  Ruby wrapper for Vyatta configuration client API
 
