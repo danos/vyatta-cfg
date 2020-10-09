@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, AT&T Intellectual Property.
+ * Copyright (c) 2019-2020, AT&T Intellectual Property.
  * All rights reserved.
  *
  * Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
@@ -236,6 +236,13 @@ static void
 setupSession(struct configd_conn *conn, const char *args)
 {
 	if (configd_sess_setup(conn, NULL) == -1)
+		exit(EXIT_FAILURE);
+}
+
+static void
+setupSharedSession(struct configd_conn *conn, const char *args)
+{
+	if (configd_sess_setup_shared(conn, NULL) == -1)
 		exit(EXIT_FAILURE);
 }
 
@@ -784,6 +791,7 @@ static OpT ops[] = {
 
 	OP(teardownSession, 0, "No argument expected", -1, NULL, false, false, USE_CONN),
 	OP(setupSession, 0, "No argument expected", -1, NULL, false, false, USE_CONN),
+	OP(setupSharedSession, 0, "No argument expected", -1, NULL, false, false, USE_CONN),
 	OP(inSession, 0, "No argument expected", -1, NULL, false, false, USE_CONN),
 
 	OP(exists, -1, NULL, 1, "Must specify config path", false, false, USE_CONN),
