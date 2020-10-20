@@ -1,8 +1,11 @@
-vyatta-cfg (1.27.1) UNRELEASED; urgency=medium
+vyatta-cfg (1.27.1) unstable; urgency=medium
 
+  [ Duncan Eastoe ]
   * Split libvyatta-cfg1 package
+  * libvyatta-cfg: Add shared session setup API
+  * cli-shell-api: Add setupSharedSession option
 
- -- Duncan Eastoe <duncan.eastoe@att.com>  Fri, 16 Oct 2020 17:18:13 +0100
+ -- William Ivory <william.ivory@intl.att.com>  Tue, 20 Oct 2020 16:14:29 +0100
 
 vyatta-cfg (1.27) unstable; urgency=medium
 
