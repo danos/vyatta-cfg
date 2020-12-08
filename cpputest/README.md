@@ -8,8 +8,8 @@ Use of the 'my_tools' repo in BitBucket makes the setup easier...
 
 * mkdir ~/buildroots
 * cd buildroots
-* setup-chroot <chroot-name> <project> vyatta-cfg
-  * eg setup-chroot master Vyatta:Master vyatta-cfg
+* setup-chroot <chroot-name> vyatta-cfg <prj>
+  * eg setup-chroot master vyatta-cfg Vyatta:Master
   * this will perform initial build
 * set-chroot <chroot-name>
 * cd work/vyatta-cfg
