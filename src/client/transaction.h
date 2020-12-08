@@ -33,7 +33,7 @@ char *configd_set(struct configd_conn *, const char *, struct configd_error *);
 
 /**
  * configd_validate_path takes a '/' separated path and verifies the syntax of the path
- * On error the pointer it returns is set to NULL and if the configd_error struct is 
+ * On error the pointer it returns is set to NULL and if the configd_error struct is
  * non NULL the error is populated.
  */
 char *configd_validate_path(struct configd_conn *, const char *, struct configd_error *);
@@ -151,6 +151,20 @@ char *configd_edit_config_xml(struct configd_conn *conn,
 			      const char *error_option,
 			      const char *config,
 			      struct configd_error *error);
+
+/**
+ * configd_copy_config performs a RFC-6241 copy-config operation.
+ * On error the pointer it returns is set to NULL and if the
+ * configd_error struct is non NULL the error is populated.
+ */
+char *configd_copy_config(
+	struct configd_conn *conn,
+	const char *source_datastore,
+	const char *source_config,
+	const char *source_url,
+	const char *target_datastore,
+	const char *target_url,
+	struct configd_error *error);
 
 #ifdef __cplusplus
 }

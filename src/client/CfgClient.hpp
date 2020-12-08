@@ -523,6 +523,21 @@ public:
 	 * @param config The XML data for an edit-config operation rooted at "<config>".
 	 */
 	std::string EditConfigXML(const std::string target, const std::string default_operation, const std::string test_option, const std::string error_option, const std::string config) throw(CfgClientException);
+	/**
+	 * CopyConfig will perform a RFC-6241 copy-config operation, see RFC-6241
+	 * for more information.
+	 * @param source_datastore The source datastore, currently must be none as only valid value is candidate which is taken by 'target'.
+	 * @param source_config Alternative source - full XML config in <config> tags.
+	 * @param source_url Alternative source from URL (not currently supported).
+	 * @param target_datastore The target datastore (must be candidate currently).
+	 * @param target_url Alternative target destination (not currently supported).
+	 */
+	std::string CopyConfig(
+		const std::string source_datastore,
+		const std::string source_config,
+		const std::string source_url,
+		const std::string target_datastore,
+		const std::string target_url) throw(CfgClientException);
 
 private:
 	std::string _sessionid;

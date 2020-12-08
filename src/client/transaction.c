@@ -244,9 +244,9 @@ char *configd_commit(struct configd_conn *conn, const char *comment, struct conf
 char *configd_confirmed_commit(struct configd_conn *conn,
 			       const char *comment,
 			       int confirmed,
-			       const char *timeout, 
-			       const char *persist, 
-			       const char *persistid, 
+			       const char *timeout,
+			       const char *persist,
+			       const char *persistid,
 			       struct configd_error *error)
 {
 	char *result;
@@ -396,5 +396,30 @@ char *configd_edit_config_xml(struct configd_conn *conn,
 
 	error_init(error, __func__);
 	result = get_str(conn, &req, error);
+	return result;
+}
+
+char *configd_copy_config(
+	struct configd_conn *conn,
+	const char *source_datastore,
+	const char *source_config,
+	const char *source_url,
+	const char *target_datastore,
+	const char *target_url,
+	struct configd_error *error)
+{
+	char *result;
+	struct request req = { .fn = "CopyConfig" };
+
+	req.args = json_pack("[ssssss]", conn->session_id,
+		source_datastore, source_config, source_url,
+		target_datastore, target_url);
+	if (!req.args) {
+		return NULL;
+	}
+
+	error_init(error, __func__);
+	result = get_str(conn, &req, error);
+
 	return result;
 }

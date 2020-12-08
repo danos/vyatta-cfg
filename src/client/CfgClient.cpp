@@ -635,4 +635,35 @@ std::string CfgClient::EditConfigXML(const std::string target, const std::string
 	free(result);
 	return res;
 }
+
+std::string CfgClient::CopyConfig(
+	const std::string source_datastore,
+	const std::string source_config,
+	const std::string source_url,
+	const std::string target_datastore,
+	const std::string target_url) throw(CfgClientException)
+{
+	struct configd_error err = {
+		0,
+	};
+
+	char *result = configd_copy_config(
+		_conn, source_datastore.c_str(), source_config.c_str(),
+		source_url.c_str(), target_datastore.c_str(), target_url.c_str(),
+		&err);
+
+	if (result == NULL)
+	{
+		std::string msg;
+		if (err.text)
+			msg = err.text;
+		configd_error_free(&err);
+		throw(CfgClientException(msg));
+	}
+
+	std::string res = result;
+	free(result);
+	return res;
+}
+
 // Private functions
