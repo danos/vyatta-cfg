@@ -109,15 +109,6 @@ Recommends: configd (>= 1.24)
 Description: Legacy vyatta-cfg back-end library
  Legacy Vyatta configuration back-end library.
 
-Package: libvyatta-cfg1
-Architecture: all
-Depends: libvyatta-config2, libvyatta-config-perl, ${misc:Depends}
-Recommends: configd (>= 1.24)
-Description: Temporary transition package
- Temporary dependency package following package split into:
-   - libvyatta-config1 (now libvyatta-config2)
-   - libvyatta-config-perl
-
 Package: libvyatta-cfg-dev
 Architecture: any
 Section: contrib/libdevel
