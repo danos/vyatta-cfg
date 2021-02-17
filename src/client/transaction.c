@@ -1,4 +1,4 @@
-/* Copyright (c) 2019-2020, AT&T Intellectual Property Inc. All rights reserved. */
+/* Copyright (c) 2019-2021, AT&T Intellectual Property Inc. All rights reserved. */
 /*
    Copyright (c) 2013-2016 by Brocade Communications Systems, Inc.
    All rights reserved.
@@ -368,6 +368,21 @@ char *configd_validate(struct configd_conn *conn, struct configd_error *error)
 	struct request req = { .fn = "Validate" };
 
 	req.args = json_pack("[s]", conn->session_id);
+	if (!req.args)
+		return NULL;
+
+	error_init(error, __func__);
+	result = get_str(conn, &req, error);
+	configd_error_format_for_commit_or_val(error, "Validate");
+	return result;
+}
+
+char *configd_validate_config(struct configd_conn *conn, const char *encoding, const char *config, struct configd_error *error)
+{
+	char *result;
+	struct request req = { .fn = "ValidateConfig" };
+
+	req.args = json_pack("[sss]", conn->session_id, encoding, config);
 	if (!req.args)
 		return NULL;
 
