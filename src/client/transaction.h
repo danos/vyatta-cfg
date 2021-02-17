@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, AT&T Intellectual Property. All rights reserved.
+ * Copyright (c) 2019-2021, AT&T Intellectual Property. All rights reserved.
  *
   Copyright (c) 2013-2016 by Brocade Communications Systems, Inc.
 
@@ -138,6 +138,13 @@ int configd_load_report_warnings(struct configd_conn *, const char *, struct con
  * non NULL the error is populated.
  */
 char *configd_validate(struct configd_conn *, struct configd_error *);
+
+/**
+ * configd_validate_config preforms the validate operation the supplied config. On
+ * error the pointer it returns is set to NULL and if the configd_error struct is
+ * non NULL the error is populated.
+ */
+char *configd_validate_config(struct configd_conn *, const char *encoding, const char *config, struct configd_error *);
 
 /**
  * configd_edit_config_xml preforms a RFC-6241 edit-config operation.

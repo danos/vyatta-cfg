@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, AT&T Intellectual Property Inc. All rights reserved.
+ * Copyright (c) 2018-2021, AT&T Intellectual Property Inc. All rights reserved.
  * Copyright (c) 2015 by Brocade Communications Systems, Inc.
  * All rights reserved.
  *
@@ -197,6 +197,11 @@ public:
 	 * constraints modeled in the schema.
 	 */
 	std::string Validate() throw(CfgClientException);
+	/**
+	 * Validate() checks that the candidate configuration meets all the
+	 * constraints modeled in the schema.
+	 */
+	std::string ValidateConfig(const std::string encoding, const std::string config) throw(CfgClientException);
 	/**
 	 * Save() Saves the current running configuration to the 'saved'
 	 * configuration.

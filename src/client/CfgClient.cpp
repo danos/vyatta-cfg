@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, AT&T Intellectual Property Inc. All rights reserved.
+ * Copyright (c) 2018-2021, AT&T Intellectual Property Inc. All rights reserved.
  * Copyright (c) 2015-2016 by Brocade Communications Systems, Inc.
  * All rights reserved.
  *
@@ -431,6 +431,29 @@ std::string CfgClient::Discard() throw(CfgClientException)
 std::string CfgClient::Validate() throw(CfgClientException)
 {
 	return callstrapi(_conn, configd_validate);
+}
+
+std::string CfgClient::ValidateConfig(const std::string encoding, const std::string config) throw(CfgClientException)
+{
+	struct configd_error err = {
+		0,
+	};
+
+	char *result = configd_validate_config( _conn, encoding.c_str(),
+			config.c_str(), &err);
+
+	if (result == NULL)
+	{
+		std::string msg;
+		if (err.text)
+			msg = err.text;
+		configd_error_free(&err);
+		throw(CfgClientException(msg));
+	}
+
+	std::string res = result;
+	free(result);
+	return res;
 }
 
 std::string CfgClient::Save() throw(CfgClientException)
