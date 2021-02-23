@@ -1,8 +1,17 @@
-vyatta-cfg (1.28) UNRELEASED; urgency=medium
+vyatta-cfg (1.28) unstable; urgency=medium
 
+  [ Duncan Eastoe ]
   * Add libvyatta-config-perl pkg with legacy lib
+  * libvyatta-cfg: Add shared session setup API
+  * cli-shell-api: Add setupSharedSession option
 
- -- Duncan Eastoe <duncan.eastoe@att.com>  Fri, 09 Oct 2020 17:07:53 +0100
+  [ William Ivory ]
+  * Add CopyConfig API
+
+  [ Duncan Eastoe ]
+  * debian: Remove libvyatta-cfg1 transition package
+
+ -- William Ivory <william.ivory@intl.att.com>  Tue, 23 Feb 2021 13:52:47 +0000
 
 vyatta-cfg (1.27) unstable; urgency=medium
 
