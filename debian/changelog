@@ -1,3 +1,9 @@
+vyatta-cfg (1.27.2) unstable; urgency=medium
+
+  * Add CopyConfig API
+
+ -- William Ivory <william.ivory@intl.att.com>  Thu, 04 Mar 2021 17:38:32 +0000
+
 vyatta-cfg (1.27.1) unstable; urgency=medium
 
   [ Duncan Eastoe ]
