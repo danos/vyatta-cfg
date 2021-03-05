@@ -23,8 +23,6 @@ Build-Depends:
  libvyatta-util-dev (>=0.14),
  pkg-config,
  python3-dev,
- ruby,
- ruby-dev,
  swig3.0
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.2
@@ -143,12 +141,6 @@ Section: contrib/perl
 Depends: libvyatta-config2, ${misc:Depends}, ${perl:Depends}, ${shlibs:Depends}
 Description: Perl bindings to Vyatta config client API
  Perl wrapper for Vyatta configuration client API
-
-Package: ruby-vyatta-cfgclient
-Architecture: any
-Depends: libvyatta-config2, ${misc:Depends}, ${ruby:Depends}, ${shlibs:Depends}
-Description: Ruby bindings to Vyatta config client API
- Ruby wrapper for Vyatta configuration client API
 
 Package: vyatta-dscp-v1-yang
 Architecture: all

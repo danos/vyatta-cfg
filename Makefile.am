@@ -150,25 +150,6 @@ src/client/perl/CfgClient_wrap.cxx src/client/perl/Configd.pm: src/client/perl/C
 
 CLEANFILES += src/client/perl/CfgClient_wrap.cxx src/client/perl/Configd.pm
 
-RUBY_VENDORARCHDIR = $(shell ruby -rrbconfig -e 'print RbConfig::CONFIG["vendorarchdir"]')
-lib_LTLIBRARIES += src/client/ruby/libCfgClient.la
-src_client_ruby_libCfgClient_la_LDFLAGS = -version-info 1:0:0
-src_client_ruby_libCfgClient_la_SOURCES = src/client/CfgClient.cpp
-src_client_ruby_libCfgClient_la_SOURCES += src/client/ruby/CfgClient_wrap.cxx
-src_client_ruby_libCfgClient_la_CXXFLAGS = $(AM_CXXFLAGS) $(RUBY_CFLAGS)
-src_client_ruby_libCfgClient_la_CXXFLAGS += -Wno-unused-but-set-variable -Wno-maybe-uninitialized
-src_client_ruby_libCfgClient_la_LIBADD = src/libvyatta-config.la
-src_client_ruby_libCfgClient_la_LIBADD += -lvyatta-util
-src_client_ruby_libCfgClient_la_LIBADD += -lstdc++
-src_client_ruby_libCfgClient_la_LIBADD += -ljansson
-src_client_ruby_libCfgClient_la_LIBADD += -luriparser
-src_client_ruby_libCfgClient_la_LIBADD += $(RUBY_LIBS)
-
-src/client/ruby/CfgClient_wrap.cxx: src/client/ruby/CfgClient.i src/client/CfgClient.hpp
-	swig3.0 -Wall -c++ -ruby $<
-
-CLEANFILES += src/client/ruby/CfgClient_wrap.cxx
-
 sbin_PROGRAMS = src/my_cli_shell_api
 
 src_my_cli_shell_api_SOURCES = src/cli_shell_api.cpp
@@ -266,8 +247,3 @@ install-exec-hook:
 	chrpath -d src/client/perl/.libs/libCfgClientPerl.so.1.0.0
 	cp src/client/perl/.libs/libCfgClientPerl.so.1.0.0 $(DESTDIR)/opt/vyatta/share/perl5/auto/Vyatta/Configd/Configd.so
 	cp src/client/perl/Configd.pm $(DESTDIR)/opt/vyatta/share/perl5/Vyatta
-
-	mkdir -p $(DESTDIR)$(RUBY_VENDORARCHDIR)/vyatta
-	chrpath -d src/client/ruby/.libs/libCfgClient.so.1.0.0
-	cp src/client/ruby/.libs/libCfgClient.so.1.0.0 src/client/ruby/configd.so
-	cp src/client/ruby/.libs/libCfgClient.so.1.0.0 $(DESTDIR)$(RUBY_VENDORARCHDIR)/vyatta/configd.so

@@ -28,9 +28,6 @@ AC_SUBST(pkgpython3,$pkgpython)
 AC_SUBST(py3execdir,$pyexecdir)
 AC_SUBST(pkgpy3execdir,$pkgpyexecdir)
 
-PKG_CHECK_MODULES([RUBY], [ruby], [],
-    [PKG_CHECK_MODULES([RUBY], [ruby-2.1])])
-
 AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_AS
