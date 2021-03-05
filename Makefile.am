@@ -111,18 +111,6 @@ vclinc_HEADERS += src/client/CfgClient.hpp
 # off. Unfortunately we cannot use noinst_LIBRARIES because generated
 # library init routines do not get linked in via a separate archive
 # library.
-pkgpython_LTLIBRARIES = src/client/python/libCfgClient.la
-src_client_python_libCfgClient_la_LDFLAGS = -version-info 1:0:0
-src_client_python_libCfgClient_la_SOURCES = src/client/CfgClient.cpp
-src_client_python_libCfgClient_la_SOURCES += src/client/python/CfgClient_wrap.cxx
-src_client_python_libCfgClient_la_CXXFLAGS = $(AM_CXXFLAGS) $(python_CFLAGS)
-src_client_python_libCfgClient_la_CXXFLAGS += -Wno-unused-but-set-variable -Wno-maybe-uninitialized
-src_client_python_libCfgClient_la_LIBADD = src/libvyatta-config.la
-src_client_python_libCfgClient_la_LIBADD += -lvyatta-util
-src_client_python_libCfgClient_la_LIBADD += -lstdc++
-src_client_python_libCfgClient_la_LIBADD += -ljansson
-src_client_python_libCfgClient_la_LIBADD += -luriparser
-src_client_python_libCfgClient_la_LIBADD += $(python_LIBS)
 
 pkgpython3_LTLIBRARIES = src/client/python3/libCfgClient.la
 src_client_python3_libCfgClient_la_LDFLAGS = -version-info 1:0:0
@@ -152,13 +140,10 @@ src_client_perl_libCfgClientPerl_la_LIBADD += -luriparser
 src_client_perl_libCfgClientPerl_la_LIBADD += -lperl
 src_client_perl_libCfgClientPerl_la_LIBADD += -lpthread
 
-src/client/python/CfgClient_wrap.cxx src/client/python/CfgClient.py: src/client/python/CfgClient.i src/client/CfgClient.hpp
-	swig3.0 -Wall -c++ -python $<
-
 src/client/python3/CfgClient_wrap.cxx src/client/python3/CfgClient.py: src/client/python3/CfgClient.i src/client/CfgClient.hpp
 	swig3.0 -Wall -c++ -python -py3 $<
 
-CLEANFILES += src/client/python/CfgClient_wrap.cxx src/client/python/CfgClient.py src/client/python/_CfgClient.so src/client/python3/CfgClient_wrap.cxx src/client/python3/CfgClient.py src/client/python3/_CfgClient.so
+CLEANFILES += src/client/python3/CfgClient_wrap.cxx src/client/python3/CfgClient.py src/client/python3/_CfgClient.so
 
 src/client/perl/CfgClient_wrap.cxx src/client/perl/Configd.pm: src/client/perl/CfgClient.i src/client/CfgClient.hpp
 	swig3.0 -Wall -c++ -perl5 $<
@@ -269,8 +254,6 @@ install-exec-hook:
 	mkdir -p $(DESTDIR)$(sysconfdir)
 	mkdir -p $(DESTDIR)$(yangdir)
 	cd yang && $(cpiop) $(DESTDIR)$(yangdir)
-	chrpath -d src/client/python/.libs/libCfgClient.so.1.0.0
-	cp src/client/python/.libs/libCfgClient.so.1.0.0 src/client/python/_configd.so
 	chrpath -d src/client/python3/.libs/libCfgClient.so.1.0.0
 	cp src/client/python3/.libs/libCfgClient.so.1.0.0 src/client/python3/_configd.so
 	mkdir -p $(DESTDIR)/usr/lib/python3/dist-packages/vyatta

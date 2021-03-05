@@ -28,19 +28,6 @@ AC_SUBST(pkgpython3,$pkgpython)
 AC_SUBST(py3execdir,$pyexecdir)
 AC_SUBST(pkgpy3execdir,$pkgpyexecdir)
 
-AS_UNSET([PYTHON])
-AS_UNSET([HAVE_PYTHON])
-AS_UNSET([PYTHON_VERSION])
-AS_UNSET([PYTHON_PREFIX])
-AS_UNSET([PYTHON_EXEC_PREFIX])
-AS_UNSET([PYTHON_PLATFORM])
-AS_UNSET([pythondir])
-AS_UNSET([pkgpythondir])
-AS_UNSET([pkgpython])
-AS_UNSET([pyexecdir])
-AS_UNSET([pkgpyexecdir])
-AM_PATH_PYTHON([2])
-
 PKG_CHECK_MODULES([RUBY], [ruby], [],
     [PKG_CHECK_MODULES([RUBY], [ruby-2.1])])
 
@@ -57,9 +44,6 @@ AC_ARG_ENABLE([nostrip],
 	AC_HELP_STRING([--enable-nostrip],
 	[include -nostrip option during packaging]),
 	[NOSTRIP=-nostrip], [NOSTRIP=])
-
-PKG_CHECK_MODULES(python, [python], [],
-    [AC_MSG_ERROR(python-dev is required for this program)])
 
 PKG_CHECK_MODULES(python3, [python3], [],
     [AC_MSG_ERROR(python3-dev is required for this program)])

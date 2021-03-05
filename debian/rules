@@ -19,7 +19,7 @@ cfg_opts += LDFLAGS="-Wl,-z,defs"
 cfg_opts += CXXFLAGS="$(CXXFLAGS)"
 
 %:
-	dh $@ --with python2 --with python3 --with yang
+	dh $@ --with python3 --with yang
 
 override_dh_auto_configure:
 	autoreconf -i --force
@@ -27,6 +27,3 @@ override_dh_auto_configure:
 
 override_dh_strip:
 	dh_strip --dbg-package=libvyatta-cfg-dbg
-
-override_dh_python2:
-	dh_python2 --namespace=vyatta

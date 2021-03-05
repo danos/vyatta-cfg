@@ -22,13 +22,11 @@ Build-Depends:
  liburiparser-dev,
  libvyatta-util-dev (>=0.14),
  pkg-config,
- python-dev,
  python3-dev,
  ruby,
  ruby-dev,
  swig3.0
 Standards-Version: 3.9.6
-X-Python-Version: >= 2.7
 X-Python3-Version: >= 3.2
 
 Package: vyatta-cfg
@@ -130,14 +128,6 @@ Depends: libvyatta-config2 (=${binary:Version}),
 Description: libvyatta-cfg debug symbols
  Debug symbols for the Vyatta configuration back-end
  library.
-
-Package: python-vyatta-cfgclient
-Section: contrib/python
-Architecture: any
-Depends: libvyatta-config2, ${misc:Depends}, ${python:Depends}, ${shlibs:Depends}
-X-Python-Version: >= 2.7
-Description: Python bindings to Vyatta config client API
- Python wrapper for Vyatta configuration client API
 
 Package: python3-vyatta-cfgclient
 Section: contrib/python
