@@ -459,7 +459,7 @@ char *local_strdup(const char *s)
 	if (retstr == NULL) {
 		return NULL;
 	}
-	return strncpy(retstr, s, len);
+	return strcpy(retstr, s);
 }
 
 int local_vasprintf (char **dest, const char *fmt_str, va_list args)
