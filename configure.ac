@@ -42,8 +42,10 @@ AC_ARG_ENABLE([nostrip],
 	[include -nostrip option during packaging]),
 	[NOSTRIP=-nostrip], [NOSTRIP=])
 
-PKG_CHECK_MODULES(python3, [python3], [],
-    [AC_MSG_ERROR(python3-dev is required for this program)])
+PKG_CHECK_MODULES(python3, [python3-embed], [], [
+	PKG_CHECK_MODULES(python3, [python3], [],
+		[AC_MSG_ERROR(python3-dev is required for this program)])
+	])
 
 PKG_CHECK_MODULES(cpputest, [cpputest], [], [
     dnl Fall back to classic searching. 3.1 on Wheezy doesn't supply .pc
