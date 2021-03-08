@@ -23,7 +23,7 @@ Build-Depends:
  libvyatta-util-dev (>=0.14),
  pkg-config,
  python3-dev,
- swig3.0
+ swig (>=3.0)
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.2
 
