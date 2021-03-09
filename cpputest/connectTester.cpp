@@ -142,16 +142,16 @@ TEST(RecvResponse, result_vector)
 	LONGS_EQUAL(0, retval);
 
 	LONGS_EQUAL(VECTOR, test_resp.type);
-	LONGS_EQUAL(3, vector_count(test_resp.result.v))
+	LONGS_EQUAL(3, vector_count(test_resp.result.v));
 
 	str = vector_next(test_resp.result.v, str);
-	STRCMP_EQUAL("string1", str)
+	STRCMP_EQUAL("string1", str);
 
 	str = vector_next(test_resp.result.v, str);
-	STRCMP_EQUAL("string2", str)
+	STRCMP_EQUAL("string2", str);
 
 	str = vector_next(test_resp.result.v, str);
-	STRCMP_EQUAL("string3", str)
+	STRCMP_EQUAL("string3", str);
 }
 
 TEST(RecvResponse, result_map)
