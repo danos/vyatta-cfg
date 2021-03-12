@@ -527,13 +527,16 @@ public:
 	 * CopyConfig will perform a RFC-6241 copy-config operation, see RFC-6241
 	 * for more information.
 	 * @param source_datastore The source datastore, currently must be none as only valid value is candidate which is taken by 'target'.
-	 * @param source_config Alternative source - full XML config in <config> tags.
+	 * @param source_encoding The encoding format of source_config, either xml, json or rfc7951.
+	 * @param source_config Alternative source - full config encoded in format specified by source_encoding,
+	 *        if XML, it must be wrapped in <config> tags.
 	 * @param source_url Alternative source from URL (not currently supported).
 	 * @param target_datastore The target datastore (must be candidate currently).
 	 * @param target_url Alternative target destination (not currently supported).
 	 */
 	std::string CopyConfig(
 		const std::string source_datastore,
+		const std::string source_encoding,
 		const std::string source_config,
 		const std::string source_url,
 		const std::string target_datastore,
