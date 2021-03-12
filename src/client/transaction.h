@@ -160,6 +160,7 @@ char *configd_edit_config_xml(struct configd_conn *conn,
 char *configd_copy_config(
 	struct configd_conn *conn,
 	const char *source_datastore,
+	const char *source_encoding,
 	const char *source_config,
 	const char *source_url,
 	const char *target_datastore,

@@ -402,6 +402,7 @@ char *configd_edit_config_xml(struct configd_conn *conn,
 char *configd_copy_config(
 	struct configd_conn *conn,
 	const char *source_datastore,
+	const char *source_encoding,
 	const char *source_config,
 	const char *source_url,
 	const char *target_datastore,
@@ -411,9 +412,9 @@ char *configd_copy_config(
 	char *result;
 	struct request req = { .fn = "CopyConfig" };
 
-	req.args = json_pack("[ssssss]", conn->session_id,
-		source_datastore, source_config, source_url,
-		target_datastore, target_url);
+	req.args = json_pack("[sssssss]", conn->session_id,
+		source_datastore, source_encoding, source_config,
+		source_url, target_datastore, target_url);
 	if (!req.args) {
 		return NULL;
 	}

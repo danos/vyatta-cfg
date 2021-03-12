@@ -638,6 +638,7 @@ std::string CfgClient::EditConfigXML(const std::string target, const std::string
 
 std::string CfgClient::CopyConfig(
 	const std::string source_datastore,
+	const std::string source_encoding,
 	const std::string source_config,
 	const std::string source_url,
 	const std::string target_datastore,
@@ -647,8 +648,8 @@ std::string CfgClient::CopyConfig(
 		0,
 	};
 
-	char *result = configd_copy_config(
-		_conn, source_datastore.c_str(), source_config.c_str(),
+	char *result = configd_copy_config(_conn, source_datastore.c_str(),
+		source_encoding.c_str(), source_config.c_str(),
 		source_url.c_str(), target_datastore.c_str(), target_url.c_str(),
 		&err);
 
