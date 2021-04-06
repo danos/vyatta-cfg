@@ -1,3 +1,10 @@
+vyatta-cfg (1.28.1) unstable; urgency=medium
+
+  * CopyConfig: support different config encodings
+  * Add ValidateConfig API (Closes: VRVDR-52942)
+
+ -- Paul Carson <paul.carson@intl.att.com>  Tue, 06 Apr 2021 14:15:35 +0100
+
 vyatta-cfg (1.28) unstable; urgency=medium
 
   [ Duncan Eastoe ]
