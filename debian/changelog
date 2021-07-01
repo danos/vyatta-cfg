@@ -1,3 +1,19 @@
+vyatta-cfg (1.29) unstable; urgency=medium
+
+  [ Nicholas Brown ]
+  * Fix gcc 10 compiler error
+  * Remove generation of python2 bindings
+  * Don't generate ruby bindings
+  * Use a version swig dependency instead of package name
+  * Fix compiler errors
+  * Add support for python 3.8 later
+
+  [ Paul Carson ]
+  * CopyConfig: support different config encodings
+  * Add ValidateConfig API (Closes: VRVDR-52942)
+
+ -- Paul Carson <paul.carson@intl.att.com>  Thu, 01 Jul 2021 14:12:03 +0100
+
 vyatta-cfg (1.28) unstable; urgency=medium
 
   [ Duncan Eastoe ]
